@@ -1,3 +1,6 @@
+<?php
+require_once 'backend/toaster_handler.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,12 +22,12 @@
     <div class="flex h-screen">
         <div class="w-full md:w-1/2 flex items-center justify-center ">
 
-            <form class="bg-white p-8 w-[500px] ">
+            <form class="bg-white p-8 w-[500px] " action="backend/login_con.php" method="POST" enctype="multipart/form-data">
                 <h2 class="text-[100px] mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-500">
                 <i class="fa-solid fa-graduation-cap"></i>
                 </h2>
-                <input type="text" placeholder="Username" class="block w-full mb-4 p-2 border rounded">
-                <input type="password" placeholder="Password" class="block w-full mb-4 p-2 border rounded">
+                <input type="text" placeholder="Username" class="block w-full mb-4 p-2 border rounded" name="username">
+                <input type="password" placeholder="Password" class="block w-full mb-4 p-2 border rounded" name="password">
                 <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Login</button>
                 <div class=" text-center mt-10">
                     Don't have an account?<a class="text-blue-700 font-bold" href="signup.php"> Sign Up</a>
@@ -35,5 +38,14 @@
             <!-- Fallback text in case image doesn't load -->
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php
+            if (!empty($toastrScript)) {
+                echo $toastrScript;
+            }
+            ?>
+        });
+    </script>
 </body>
 </html>

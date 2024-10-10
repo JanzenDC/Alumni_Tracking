@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $zip_code = $_POST['zip_code'] ?? '';
     $country = $_POST['country'] ?? '';
     $bio = $_POST['bio'] ?? '';
+
     // Basic validation
     if (empty($fname) || empty($lname) || empty($email) || empty($username) || empty($password) || empty($confirm_password)) {
         $_SESSION['toastr_message'] = 'Please fill in all required fields.';
@@ -36,16 +37,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Construct the SQL query
+    // Construct the SQL query for the nx_users table
     $sql = "INSERT INTO nx_users (username, email, password_hash, fname, mname, lname, date_of_birth, bio, phone_number, address, city, state, zip_code, country) 
             VALUES ('$username', '$email', '$hashed_password', '$fname', '$mname', '$lname', '$date_of_birth', '$bio', '$phone_number', '$address', '$city', '$state', '$zip_code', '$country')";
 
-    // Execute the query
+    // Execute the query for nx_users
     if ($conn->query($sql) === TRUE) {
-        $_SESSION['toastr_message'] = 'Registration successful!';
-        $_SESSION['toastr_type'] = 'success';
-        header('Location: ../index.php');
-        exit();
+        $userId = $conn->insert_id; // Get the last inserted user ID
+
+        // Insert into nx_user_type (default type = 1 for user)
+        $userTypeSql = "INSERT INTO nx_user_type (pID, type) VALUES ($userId, 1)";
+        
+        if ($conn->query($userTypeSql) === TRUE) {
+            $_SESSION['toastr_message'] = 'Registration successful!';
+            $_SESSION['toastr_type'] = 'success';
+            header('Location: ../index.php');
+            exit();
+        } else {
+            // Handle error for user type insertion
+            $_SESSION['toastr_message'] = 'User created but failed to set user type.';
+            $_SESSION['toastr_type'] = 'error';
+            header('Location: ../signup.php');
+            exit();
+        }
     } else {
         if ($conn->errno === 1062) {
             $_SESSION['toastr_message'] = 'Username or email already exists.';
