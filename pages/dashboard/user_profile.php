@@ -41,11 +41,11 @@ if ($resultLogs) {
 }
 
 $friends = [];
-$sqlFriends = "SELECT u.username, u.fname, u.lname, u.profile_picture 
+$sqlFriends = "SELECT u.pID, u.username, u.fname, u.lname, u.profile_picture 
                FROM nx_friends f
                JOIN nx_users u ON (u.pID = f.userID2 OR u.pID = f.userID1)
                WHERE (f.userID1 = $userID OR f.userID2 = $userID) AND f.status = 1
-               AND u.pID != $userID"; // Exclude the logged-in user
+               AND u.pID != $userID";
 
 $resultFriends = mysqli_query($conn, $sqlFriends);
 
@@ -56,6 +56,24 @@ if ($resultFriends) {
     mysqli_free_result($resultFriends);
 }
 
+$isOwnProfile = ($userID == $user['id']);
+
+// Check if the viewed user is already a friend
+$isFriend = false;
+$isPendingRequest = false;
+
+if (!$isOwnProfile) {
+    $sqlCheckFriend = "SELECT status FROM nx_friends 
+                       WHERE (userID1 = {$user['id']} AND userID2 = $userID)
+                       OR (userID1 = $userID AND userID2 = {$user['id']})";
+    $resultCheckFriend = mysqli_query($conn, $sqlCheckFriend);
+    
+    if ($resultCheckFriend && mysqli_num_rows($resultCheckFriend) > 0) {
+        $friendStatus = mysqli_fetch_assoc($resultCheckFriend)['status'];
+        $isFriend = ($friendStatus == 1);
+        $isPendingRequest = ($friendStatus == 0); // Check if status is 0 for pending requests
+    }
+}
 mysqli_close($conn);
 ?>
 
@@ -103,6 +121,16 @@ mysqli_close($conn);
                                 <h1 class="text-3xl font-bold"><?= htmlspecialchars($userDetails['fname'] . ' ' . $userDetails['lname']) ?></h1>
                                 <p class="text-lg">@<?= htmlspecialchars($userDetails['username']) ?></p>
                             </div>
+                            <?php if (!$isOwnProfile): ?>
+                                <?php if ($isFriend): ?>
+                                    <button id="cancelFriendBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">Cancel Friendship</button>
+                                <?php elseif ($isPendingRequest): ?>
+                                    <button id="cancelRequestBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">Cancel Request</button>
+                                <?php else: ?>
+                                    <button id="addFriendBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Add Friend</button>
+                                <?php endif; ?>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>
@@ -218,15 +246,18 @@ mysqli_close($conn);
                             <?php if (!empty($friends)): ?>
                                 <ul class="grid grid-cols-3 gap-4">
                                     <?php foreach ($friends as $friend): ?>
-                                        <li class="flex items-center bg-gray-100 p-2 rounded-lg">
-                                            <img src="<?php echo htmlspecialchars($friend['profile_picture']) ?: '../../images/pfp/default.jpg'; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="w-10 h-10 rounded-full mr-2">
-                                            <div>
-                                                <p class="font-semibold"><?php echo htmlspecialchars($friend['fname'] . ' ' . $friend['lname']); ?></p>
-                                                <p class="text-gray-600">@<?php echo htmlspecialchars($friend['username']); ?></p>
-                                            </div>
+                                        <li class="flex items-center bg-gray-100 p-2 rounded-lg" data-id="<?php echo htmlspecialchars($friend['pID']); ?>">
+                                            <a href="user_profile.php?id=<?php echo htmlspecialchars($friend['pID']); ?>" class="flex items-center">
+                                                <img src="<?php echo htmlspecialchars($friend['profile_picture']) ?: '../../images/pfp/default.jpg'; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="w-10 h-10 rounded-full mr-2">
+                                                <div>
+                                                    <p class="font-semibold"><?php echo htmlspecialchars($friend['fname'] . ' ' . $friend['lname']); ?></p>
+                                                    <p class="text-gray-600">@<?php echo htmlspecialchars($friend['username']); ?></p>
+                                                </div>
+                                            </a>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
+
                             <?php else: ?>
                                 <p class="text-gray-600">No friends to display.</p>
                             <?php endif; ?>
@@ -248,6 +279,17 @@ mysqli_close($conn);
     </div>
 
     <script>
+        const addFriendBtn = document.getElementById('addFriendBtn');
+        const cancelFriendBtn = document.getElementById('cancelFriendBtn');
+        const cancelRequestBtn = document.getElementById('cancelRequestBtn');
+        document.querySelectorAll('#friends li').forEach(item => {
+            item.addEventListener('click', function() {
+                const friendId = this.getAttribute('data-id');
+                console.log('Friend ID:', friendId);
+                // You can now use friendId for further actions, like redirecting to their profile page
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -264,6 +306,93 @@ mysqli_close($conn);
                 });
             });
         });
+        if (addFriendBtn) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const addFriendBtn = document.getElementById('addFriendBtn');
+                if (addFriendBtn) {
+                    addFriendBtn.addEventListener('click', function() {
+                        // Send AJAX request to add friend
+                        fetch('../dashboard/query/add_friend.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'friendID=<?= $userID ?>'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success('Friend request sent!');
+                                addFriendBtn.style.display = 'none';
+                            } else {
+                                toastr.error('Failed to send friend request. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('An error occurred. Please try again.');
+                        });
+                    });
+                }
+            });
+        }
+
+
+
+    // Cancel Friendship button logic
+    if (cancelFriendBtn) {
+        cancelFriendBtn.addEventListener('click', function() {
+            fetch('../dashboard/query/cancel_friend.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'friendID=<?= $userID ?>'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Friendship canceled.');
+                    cancelFriendBtn.style.display = 'none';
+                    addFriendBtn.style.display = 'block'; // Show add friend button if needed
+                } else {
+                    toastr.error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred. Please try again.');
+            });
+        });
+    }
+
+    // Cancel Request button logic
+    if (cancelRequestBtn) {
+        cancelRequestBtn.addEventListener('click', function() {
+            fetch('../dashboard/query/cancel_friend.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'friendID=<?= $userID ?>'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Friend request canceled.');
+                    cancelRequestBtn.style.display = 'none'; // Hide cancel request button
+                    addFriendBtn.style.display = 'block'; // Show add friend button if needed
+                } else {
+                    toastr.error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred. Please try again.');
+            });
+        });
+    }
+
     </script>
 
     <?php if (isset($_SESSION['toastr_message'])): ?>

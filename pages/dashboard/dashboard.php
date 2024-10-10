@@ -47,10 +47,10 @@ $user = $_SESSION['user'];
         </div>
 
         <!-- Right Sidebar (optional) -->
-        <div class="w-full md:w-1/4 bg-white shadow-md p-4 md:block hidden">
+        <!-- <div class="w-full md:w-1/4 bg-white shadow-md p-4 md:block hidden">
             <h2 class="text-lg font-bold">Updates</h2>
             <p class="mt-2">Here you can add any updates or notifications.</p>
-        </div>
+        </div> -->
     </div>
 
     <!-- Toastr Notifications -->
