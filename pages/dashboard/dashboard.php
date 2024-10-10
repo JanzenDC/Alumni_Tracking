@@ -21,7 +21,7 @@ $user = $_SESSION['user'];
 </head>
 <body class="bg-gray-100">
     <?php include '../header.php';  // Include the header ?>
-    <div class="flex h-screen">
+    <div class="flex h-screen ">
         <?php include '../sidebar.php';  // Include the sidebar ?>
 
         <!-- Main Content Area -->

@@ -9,5 +9,8 @@ module.exports = {
   theme: {
     extend: {},
   },
+  variants: {
+    display: ['responsive'],
+  },
   plugins: [],
 }

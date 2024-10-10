@@ -14,3 +14,6 @@
 <script src="https://kit.fontawesome.com/e929833113.js" crossorigin="anonymous"></script>
 <!-- SWEET ALERT -->
 <script src="../../node_modules/sweetalert2/dist/sweetalert2.min.js"></script>
+
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="../../assets/css/all.css"> 
