@@ -15,7 +15,7 @@ $username = $_SESSION["user"]["username"];
         <div class="relative flex justify-center">
             <input type="text" id="search-input" placeholder="Search users..." class="w-96 bg-gray-700 text-white rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <div id="search-results" class="absolute w-96 mt-[50px] bg-white rounded-md shadow-lg hidden z-10 max-h-96 overflow-y-auto" style="min-width: 16rem;"></div>
+            <div id="search-results" class="absolute w-96 mt-[50px] bg-white rounded-md shadow-lg hidden z-50 max-h-96 overflow-y-auto" style="min-width: 16rem;"></div>
 
         </div>
         <div class="flex space-x-4 ">

@@ -26,7 +26,7 @@ if (empty($results)) {
     foreach ($results as $user) {
         $profilePic = $user['profile_picture'] ? htmlspecialchars($user['profile_picture']) : '../../images/pfp/default.jpg';
         echo '
-        <a href="user_profile.php?id=' . $user['pID'] . '" class="block hover:bg-gray-100">
+        <a href="../../pages/dashboard/user_profile.php?id=' . $user['pID'] . '" class="block hover:bg-gray-100">
             <div class="flex items-center p-4 border-b">
                 <img src="' . $profilePic . '" alt="' . htmlspecialchars($user['username']) . '" class="w-10 h-10 rounded-full mr-3">
                 <div>
