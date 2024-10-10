@@ -628,6 +628,10 @@ video {
   margin-top: 2.5rem;
 }
 
+.mb-\[500px\] {
+  margin-bottom: 500px;
+}
+
 .block {
   display: block;
 }

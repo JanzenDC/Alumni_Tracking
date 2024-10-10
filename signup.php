@@ -1,3 +1,7 @@
+<?php
+require_once 'backend/toaster_handler.php';
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,31 +61,31 @@
     <div class="flex h-screen">
         <div class="w-full md:w-1/2 flex items-center justify-center">
 
-        <form id="registrationForm" class="bg-white p-8 w-[500px]" action="signup.php" method="POST" enctype="multipart/form-data">
+        <form id="registrationForm" class="bg-white p-8 w-[500px]" action="backend/signup_con.php" method="POST" enctype="multipart/form-data">
             <h2 class="text-[60px] text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-500">
                 <i class="fa-solid fa-user-plus"></i>
             </h2>
 
             <div class="form-step" id="step-1">
                 <div class="name-container">
-                    <input type="text" name="fname" placeholder="First Name" class="name-input" required>
+                    <input type="text" name="fname" placeholder="First Name" class="name-input" >
                     <input type="text" name="mname" placeholder="Middle Name" class="name-input">
-                    <input type="text" name="lname" placeholder="Last Name" class="name-input" required>
+                    <input type="text" name="lname" placeholder="Last Name" class="name-input" >
                 </div>
-                <input type="date" name="date_of_birth" placeholder="Date of Birth" required>
-                <input type="email" name="email" placeholder="Email Address" required>
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="date" name="date_of_birth" placeholder="Date of Birth" >
+                <input type="email" name="email" placeholder="Email Address" >
+                <input type="text" name="username" placeholder="Username" >
                 <div class="buttons">
                     <button type="button" onclick="nextStep()">Next</button>
                 </div>
             </div>
 
             <div class="form-step" id="step-2" style="display: none;">
-                <input type="password" name="password" placeholder="Password" required>
-                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                <input type="password" name="password" placeholder="Password" >
+                <input type="password" name="confirm_password" placeholder="Confirm Password" >
                 <input type="text" name="phone_number" placeholder="Phone Number">
                 <div class="buttons">
-                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" class="mb-3"  onclick="prevStep()">Previous</button>
                     <button type="button" onclick="nextStep()">Next</button>
                 </div>
             </div>
@@ -104,11 +108,11 @@
                         <input type="text" name="country" placeholder="Country">
                     </div>
                     <div class="form-group">
-                        <textarea name="bio" placeholder="Bio"></textarea>
+                        <textarea name="bio" placeholder="Bio" class="w-full"></textarea>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <input type="file" name="profile_picture" placeholder="Profile Picture">
-                    </div>
+                    </div> -->
                 </div>
                 <div class="buttons">
                     <button type="button" class="mb-3" onclick="prevStep()">Previous</button>
@@ -128,36 +132,41 @@
         </div>
     </div>
 
-    <?php include_once 'includes/footer_cdn.php';?>
 
-
-    <!-- SCRIPT -->
     <script>
-    let currentStep = 1;
-    const steps = document.querySelectorAll('.form-step');
-
-    function showStep(step) {
-        steps.forEach((s, index) => {
-            s.style.display = (index + 1 === step) ? 'block' : 'none';
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php
+            if (!empty($toastrScript)) {
+                echo $toastrScript;
+            }
+            ?>
         });
-    }
+        $(document).ready(function() {
+            let currentStep = 1;
+            const steps = $('.form-step');
 
-    function nextStep() {
-        if (currentStep < steps.length) {
-            currentStep++;
+            function showStep(step) {
+                steps.hide().eq(step - 1).show();
+            }
+
+            // Show the first step initially
             showStep(currentStep);
-        }
-    }
 
-    function prevStep() {
-        if (currentStep > 1) {
-            currentStep--;
-            showStep(currentStep);
-        }
-    }
+            // Functions to change steps
+            window.nextStep = function() {
+                if (currentStep < steps.length) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            };
 
-    // Show the first step initially
-    showStep(currentStep);
-</script>
+            window.prevStep = function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            };
+        });
+    </script>
 </body>
 </html>

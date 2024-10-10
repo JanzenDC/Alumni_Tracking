@@ -1,5 +1,6 @@
 <?php
-require 'db.php';
+require 'db_connect.php';
+session_start(); // Start session to use session variables
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fname = $_POST['fname'] ?? '';
@@ -17,60 +18,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $zip_code = $_POST['zip_code'] ?? '';
     $country = $_POST['country'] ?? '';
     $bio = $_POST['bio'] ?? '';
-
     // Basic validation
     if (empty($fname) || empty($lname) || empty($email) || empty($username) || empty($password) || empty($confirm_password)) {
-        die("Please fill in all required fields.");
+        $_SESSION['toastr_message'] = 'Please fill in all required fields.';
+        $_SESSION['toastr_type'] = 'error';
+        header('Location: ../signup.php');
+        exit;
     }
 
     if ($password !== $confirm_password) {
-        die("Passwords do not match.");
+        $_SESSION['toastr_message'] = 'Passwords do not match.';
+        $_SESSION['toastr_type'] = 'error';
+        header('Location: ../signup.php');
+        exit;
     }
 
     // Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Handle profile picture upload if provided
-    $profile_picture = null;
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
-        $uploads_dir = 'uploads/';
-        $tmp_name = $_FILES['profile_picture']['tmp_name'];
-        $name = basename($_FILES['profile_picture']['name']);
-        $profile_picture = $uploads_dir . uniqid() . "_" . $name;
-        move_uploaded_file($tmp_name, $profile_picture);
-    }
+    // Construct the SQL query
+    $sql = "INSERT INTO nx_users (username, email, password_hash, fname, mname, lname, date_of_birth, bio, phone_number, address, city, state, zip_code, country) 
+            VALUES ('$username', '$email', '$hashed_password', '$fname', '$mname', '$lname', '$date_of_birth', '$bio', '$phone_number', '$address', '$city', '$state', '$zip_code', '$country')";
 
-    // Prepare the SQL statement
-    $stmt = $conn->prepare("INSERT INTO nx_users (username, email, password_hash, fname, mname, lname, date_of_birth, profile_picture, bio, phone_number, address, city, state, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssssssssss", $username, $email, $hashed_password, $fname, $mname, $lname, $date_of_birth, $profile_picture, $bio, $phone_number, $address, $city, $state, $zip_code, $country);
-
-    // Execute the statement
-    if ($stmt->execute()) {
-        echo "Registration successful!";
+    // Execute the query
+    if ($conn->query($sql) === TRUE) {
+        $_SESSION['toastr_message'] = 'Registration successful!';
+        $_SESSION['toastr_type'] = 'success';
+        header('Location: ../index.php');
+        exit();
     } else {
-        if ($conn->errno === 1062) { // Duplicate entry error code
-            die("Username or email already exists.");
+        if ($conn->errno === 1062) {
+            $_SESSION['toastr_message'] = 'Username or email already exists.';
+            $_SESSION['toastr_type'] = 'error';
         } else {
-            die("Error: " . $stmt->error);
+            $_SESSION['toastr_message'] = 'Error: ' . $conn->error;
+            $_SESSION['toastr_type'] = 'error';
         }
+        header('Location: ../signup.php');
+        exit();
     }
 
-    // Close statement and connection
-    $stmt->close();
+    // Close connection
     $conn->close();
 }
 ?>
-<script src="node_modules/sweetalert2/dist/sweetalert2.min.js"></script>
-<script src="node_modules/sweetalert2/dist/sweetalert2.min.css"></script>
-<script>
-    document.querySelector('form').onsubmit = function() {
-        let inputs = this.querySelectorAll('input[required]');
-        for (let input of inputs) {
-            if (input.value === '') {
-                swal("Oops!", "Please fill in all required fields.", "error");
-                return false; // Prevent form submission
-            }
-        }
-    };
-</script>
-

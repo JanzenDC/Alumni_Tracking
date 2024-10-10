@@ -35,7 +35,5 @@
             <!-- Fallback text in case image doesn't load -->
         </div>
     </div>
-
-    <?php include_once 'includes/footer_cdn.php';?>
 </body>
 </html>
