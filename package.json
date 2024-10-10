@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "sweetalert2": "^11.14.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.13"
+  }
+}
