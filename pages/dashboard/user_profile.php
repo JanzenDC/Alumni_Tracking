@@ -12,8 +12,11 @@ $userID = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $userDetails = null;
 if ($userID > 0) {
-    $sql = "SELECT username, fname, lname, email, profile_picture FROM nx_users WHERE pID = $userID";
+        $sql = "SELECT username, fname, lname, email, profile_picture, date_of_birth, bio, phone_number, address, city, state, zip_code, country 
+        FROM nx_users 
+        WHERE pID = $userID";
     $result = mysqli_query($conn, $sql);
+
 
     if ($result && mysqli_num_rows($result) > 0) {
         $userDetails = mysqli_fetch_assoc($result);
@@ -171,16 +174,42 @@ mysqli_close($conn);
                                     <p><strong>Name:</strong> <?= htmlspecialchars($userDetails['fname'] . ' ' . $userDetails['lname']) ?></p>
                                     <p><strong>Username:</strong> <?= htmlspecialchars($userDetails['username']) ?></p>
                                     <p><strong>Email:</strong> <?= htmlspecialchars($userDetails['email']) ?></p>
-                                    <!-- Add more details as needed -->
+                                    <p><strong>Date of Birth:</strong> <?= htmlspecialchars($userDetails['date_of_birth']) ?></p>
+                                    <p><strong>Phone Number:</strong> <?= htmlspecialchars($userDetails['phone_number']) ?></p>
+                                    <p><strong>Address:</strong> <?= htmlspecialchars($userDetails['address']) . ', ' . htmlspecialchars($userDetails['city']) . ', ' . htmlspecialchars($userDetails['state']) . ' ' . htmlspecialchars($userDetails['zip_code']) . ', ' . htmlspecialchars($userDetails['country']) ?></p>
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-semibold mb-2">Additional Information</h3>
-                                    <!-- Add more sections like Work, Education, etc. -->
-                                    <p>No additional information available.</p>
+                                    <?php if (!empty($userDetails['bio'])): ?>
+                                        <p><strong>Bio:</strong> <?= nl2br(htmlspecialchars($userDetails['bio'])) ?></p>
+                                    <?php else: ?>
+                                        <p><strong>Bio:</strong> No information available.</p>
+                                    <?php endif; ?>
+
+                                    <!-- Additional sections can be added here -->
+                                    <?php if (!empty($userDetails['work'])): ?>
+                                        <p><strong>Work:</strong> <?= htmlspecialchars($userDetails['work']) ?></p>
+                                    <?php else: ?>
+                                        <p><strong>Work:</strong> No information available.</p>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($userDetails['education'])): ?>
+                                        <p><strong>Education:</strong> <?= htmlspecialchars($userDetails['education']) ?></p>
+                                    <?php else: ?>
+                                        <p><strong>Education:</strong> No information available.</p>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($userDetails['hobbies'])): ?>
+                                        <p><strong>Hobbies:</strong> <?= htmlspecialchars($userDetails['hobbies']) ?></p>
+                                    <?php else: ?>
+                                        <p><strong>Hobbies:</strong> No information available.</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Friends Tab -->
                     <div id="friends" class="tab-content">
