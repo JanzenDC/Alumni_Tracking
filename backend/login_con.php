@@ -51,6 +51,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'zip_code' => $row['zip_code'],
                 'country' => $row['country'],
                 'user_type' => $row['user_type'], // Add user type to session
+                'position' => $row['position'],     // Add employee position to session
+                'department' => $row['department'], // Add employee department to session
+                'hire_date' => $row['hire_date'],   // Add hire date to session
+                'status' => $row['status']           // Add employment status to session
             ];
             $_SESSION['toastr_message'] = 'Login successful!';
             $_SESSION['toastr_type'] = 'success';

@@ -19,7 +19,22 @@ if (isset($_POST['search'])) {
     $search = trim($_POST['search']);
 }
 
-// Fetch users with their batches, including profile pictures
+// Escape the search term to prevent SQL injection
+$searchTerm = $conn->real_escape_string($search);
+
+// Pagination settings
+$results_per_page = 10; // Number of results to display per page
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($current_page - 1) * $results_per_page;
+
+// Fetch total number of users for pagination with search filter
+$total_query = "SELECT COUNT(*) AS total FROM nx_users WHERE fname LIKE '%$searchTerm%' OR lname LIKE '%$searchTerm%' OR CONCAT(fname, ' ', lname) LIKE '%$searchTerm%'";
+$total_result = $conn->query($total_query);
+$total_row = $total_result->fetch_assoc();
+$total_users = $total_row['total'];
+$total_pages = ceil($total_users / $results_per_page);
+
+// Fetch users with pagination and search filter
 $query = "
     SELECT 
         u.pID,
@@ -28,25 +43,29 @@ $query = "
         b.batch_name
     FROM 
         nx_users u
-    JOIN 
+    LEFT JOIN 
         nx_user_batches ub ON u.pID = ub.pID
-    JOIN 
+    LEFT JOIN 
         nx_batches b ON ub.batchID = b.batchID
     WHERE 
-        u.remark = 1 AND (u.fname LIKE ? OR u.lname LIKE ? OR CONCAT(u.fname, ' ', u.lname) LIKE ?)";
+        u.fname LIKE '%$searchTerm%' OR u.lname LIKE '%$searchTerm%' OR CONCAT(u.fname, ' ', u.lname) LIKE '%$searchTerm%'
+    LIMIT $results_per_page OFFSET $offset";
 
-// Prepare the statement
-$stmt = $conn->prepare($query);
-$searchTerm = "%$search%";
-$stmt->bind_param('sss', $searchTerm, $searchTerm, $searchTerm);
-$stmt->execute();
-$result = $stmt->get_result();
+// Execute the query
+$result = $conn->query($query);
 
 if ($result === false) {
     echo "Error: " . $conn->error;
     exit;
 }
+
+// Initialize users array
+$users = [];
+while ($row = $result->fetch_assoc()) {
+    $users[] = $row;
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -78,25 +97,34 @@ if ($result === false) {
             </form>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php if ($result->num_rows > 0): ?>
-                    <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if (count($users) > 0): ?>
+                    <?php foreach ($users as $row): ?>
                         <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
-                            <div class="flex items-center">
+                            <a href="user_profile.php?id=<?php echo htmlspecialchars($row['pID']); ?>" class="flex items-center">
                                 <img 
-                                    src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: '../../images/pfp/default.jpg'); ?>" 
+                                    src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: 'default.jpg'); ?>" 
                                     alt="<?php echo htmlspecialchars($row['full_name']); ?>" 
                                     class="w-12 h-12 rounded-full mr-3"
                                 />
                                 <div>
                                     <p class="font-semibold"><?php echo htmlspecialchars($row['full_name']); ?></p>
-                                    <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name']); ?></p>
+                                    <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name'] ?: 'No Batch'); ?></p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <p class="text-gray-500">No users found.</p>
                 <?php endif; ?>
+            </div>
+
+            <!-- Pagination Links -->
+            <div class="mt-6">
+                <?php for ($page = 1; $page <= $total_pages; $page++): ?>
+                    <a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search); ?>" class="bg-blue-500 text-white rounded px-3 py-1 <?php echo ($page == $current_page) ? 'font-bold' : ''; ?>">
+                        <?php echo $page; ?>
+                    </a>
+                <?php endfor; ?>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require_once '../../backend/db_connect.php';
 // Check if the user is logged in
 if (!isset($_SESSION['user'])) {
     header('Location: ../../index.php'); // Redirect to login page if not logged in
@@ -11,7 +11,7 @@ if (!isset($_SESSION['user'])) {
 $user = $_SESSION['user'];
 
 // Database connection (ensure this is set up correctly)
-require_once '../../backend/db_connect.php';
+
 
 // Pagination setup
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

@@ -12,15 +12,24 @@ $userID = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $userDetails = null;
 if ($userID > 0) {
-        $sql = "SELECT username, fname, lname, email, profile_picture, date_of_birth, bio, phone_number, address, city, state, zip_code, country 
-        FROM nx_users 
-        WHERE pID = $userID";
+    $sql = "SELECT *
+        FROM nx_users u 
+        LEFT JOIN nx_employees e ON u.pID = e.pID 
+        LEFT JOIN nx_user_batches ub ON u.pID = ub.pID 
+        LEFT JOIN nx_batches b ON ub.batchID = b.batchID 
+        WHERE u.pID = $userID";
+
+
     $result = mysqli_query($conn, $sql);
 
 
     if ($result && mysqli_num_rows($result) > 0) {
         $userDetails = mysqli_fetch_assoc($result);
         mysqli_free_result($result);
+
+    } else {
+        // Handle the case where no data is returned
+        $userDetails = []; // Or set a message to indicate no data
     }
 }
 
@@ -76,20 +85,6 @@ if (!$isOwnProfile) {
     }
 }
 
-$sql = "
-    SELECT u.username, u.fname, u.lname, u.email, u.profile_picture, u.date_of_birth, 
-           u.bio, u.phone_number, u.address, u.city, u.state, u.zip_code, u.country,
-           b.batch_name, b.batch_date 
-    FROM nx_users u
-    LEFT JOIN nx_user_batches ub ON u.pID = ub.pID
-    LEFT JOIN nx_batches b ON ub.batchID = b.batchID
-    WHERE u.pID = $userID AND ub.is_active = 1";
-$result = mysqli_query($conn, $sql);
-
-if ($result && mysqli_num_rows($result) > 0) {
-    $userDetails = mysqli_fetch_assoc($result);
-    mysqli_free_result($result);
-}
 mysqli_close($conn);
 ?>
 
@@ -247,22 +242,16 @@ mysqli_close($conn);
                                         <p><strong>Bio:</strong> No information available.</p>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($userDetails['work'])): ?>
-                                        <p><strong>Work:</strong> <?= htmlspecialchars($userDetails['work']) ?></p>
+                                    <?php if (!empty($userDetails['position'])): ?>
+                                        <p><strong>Position:</strong> <?= htmlspecialchars($userDetails['position']) ?></p>
                                     <?php else: ?>
-                                        <p><strong>Work:</strong> No information available.</p>
+                                        <p><strong>Position:</strong> No information available.</p>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($userDetails['education'])): ?>
-                                        <p><strong>Education:</strong> <?= htmlspecialchars($userDetails['education']) ?></p>
+                                    <?php if (!empty($userDetails['department'])): ?>
+                                        <p><strong>Department:</strong> <?= htmlspecialchars($userDetails['department']) ?></p>
                                     <?php else: ?>
-                                        <p><strong>Education:</strong> No information available.</p>
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($userDetails['hobbies'])): ?>
-                                        <p><strong>Hobbies:</strong> <?= htmlspecialchars($userDetails['hobbies']) ?></p>
-                                    <?php else: ?>
-                                        <p><strong>Hobbies:</strong> No information available.</p>
+                                        <p><strong>Department:</strong> No information available.</p>
                                     <?php endif; ?>
 
                                     <?php if (!empty($userDetails['batch_name'])): ?>
