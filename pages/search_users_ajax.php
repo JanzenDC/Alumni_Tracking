@@ -65,7 +65,7 @@ if (empty($results)) {
             $batch = $result['data'];
             $coverPhoto = $batch['cover_photo'] ? htmlspecialchars($batch['cover_photo']) : '../../images/batch/default.jpg';
             echo '
-            <a href="../../pages/dashboard/batch_details.php?id=' . $batch['batchID'] . '" class="block hover:bg-gray-100">
+            <a href="../../pages/dashboard/batch_profile.php?id=' . $batch['batchID'] . '" class="block hover:bg-gray-100">
                 <div class="flex items-center p-4 border-b">
                     <img src="../../images/batch_group_images/' . $coverPhoto . '" alt="' . htmlspecialchars($batch['batch_name']) . '" class="w-10 h-10 rounded mr-3">
                     <div>
