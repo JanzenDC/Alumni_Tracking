@@ -57,12 +57,13 @@ if ($resultFriends) {
 }
 
 $isOwnProfile = ($userID == $user['id']);
-
+$hidden = '';
 // Check if the viewed user is already a friend
 $isFriend = false;
 $isPendingRequest = false;
 
 if (!$isOwnProfile) {
+    $hidden = 'style="display: none"';
     $sqlCheckFriend = "SELECT status FROM nx_friends 
                        WHERE (userID1 = {$user['id']} AND userID2 = $userID)
                        OR (userID1 = $userID AND userID2 = {$user['id']})";
@@ -73,6 +74,21 @@ if (!$isOwnProfile) {
         $isFriend = ($friendStatus == 1);
         $isPendingRequest = ($friendStatus == 0); // Check if status is 0 for pending requests
     }
+}
+
+$sql = "
+    SELECT u.username, u.fname, u.lname, u.email, u.profile_picture, u.date_of_birth, 
+           u.bio, u.phone_number, u.address, u.city, u.state, u.zip_code, u.country,
+           b.batch_name, b.batch_date 
+    FROM nx_users u
+    LEFT JOIN nx_user_batches ub ON u.pID = ub.pID
+    LEFT JOIN nx_batches b ON ub.batchID = b.batchID
+    WHERE u.pID = $userID";
+$result = mysqli_query($conn, $sql);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $userDetails = mysqli_fetch_assoc($result);
+    mysqli_free_result($result);
 }
 mysqli_close($conn);
 ?>
@@ -116,7 +132,7 @@ mysqli_close($conn);
                 <div class="cover-photo relative">
                     <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent">
                         <div class="flex items-end">
-                            <img src="<?= htmlspecialchars($userDetails['profile_picture'] ?: '../../images/pfp/default.jpg') ?>" alt="Profile Picture" class="w-40 h-40 rounded-full border-4 border-white">
+                            <img src="../../images/pfp/<?= htmlspecialchars($userDetails['profile_picture'] ?: '../../images/pfp/default.jpg') ?>" alt="Profile Picture" class="w-40 h-40 rounded-full border-4 border-white">
                             <div class="ml-4 text-white">
                                 <h1 class="text-3xl font-bold"><?= htmlspecialchars($userDetails['fname'] . ' ' . $userDetails['lname']) ?></h1>
                                 <p class="text-lg">@<?= htmlspecialchars($userDetails['username']) ?></p>
@@ -164,7 +180,7 @@ mysqli_close($conn);
                             <!-- Main Content -->
                             <div class="md:col-span-2">
                                 <!-- Status Update Box -->
-                                <div class="bg-white shadow rounded-lg p-4 mb-4">
+                                <div class="bg-white shadow rounded-lg p-4 mb-4" <?=$hidden?>>
                                     <textarea class="w-full p-2 border rounded-lg" placeholder="What's on your mind?"></textarea>
                                     <button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg">Post</button>
                                 </div>
@@ -214,7 +230,6 @@ mysqli_close($conn);
                                         <p><strong>Bio:</strong> No information available.</p>
                                     <?php endif; ?>
 
-                                    <!-- Additional sections can be added here -->
                                     <?php if (!empty($userDetails['work'])): ?>
                                         <p><strong>Work:</strong> <?= htmlspecialchars($userDetails['work']) ?></p>
                                     <?php else: ?>
@@ -232,7 +247,15 @@ mysqli_close($conn);
                                     <?php else: ?>
                                         <p><strong>Hobbies:</strong> No information available.</p>
                                     <?php endif; ?>
+
+                                    <?php if (!empty($userDetails['batch_name'])): ?>
+                                        <p><strong>Batch:</strong> <?= htmlspecialchars($userDetails['batch_name']) ?></p>
+                                        <p><strong>Graduation Date:</strong> <?= htmlspecialchars($userDetails['batch_date']) ?></p>
+                                    <?php else: ?>
+                                        <p><strong>Batch:</strong> No information available.</p>
+                                    <?php endif; ?>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -244,10 +267,10 @@ mysqli_close($conn);
                         <div class="bg-white shadow rounded-lg p-4">
                             <h2 class="text-2xl font-semibold mb-4">Friends</h2>
                             <?php if (!empty($friends)): ?>
-                                <ul class="grid grid-cols-3 gap-4">
+                                <ul class="md:grid md:grid-cols-3 md:gap-4">
                                     <?php foreach ($friends as $friend): ?>
-                                        <li class="flex items-center bg-gray-100 p-2 rounded-lg" data-id="<?php echo htmlspecialchars($friend['pID']); ?>">
-                                            <a href="user_profile.php?id=<?php echo htmlspecialchars($friend['pID']); ?>" class="flex items-center">
+                                        <li class="md:mb-0 mb-3 flex items-center bg-gray-100 p-2 rounded-lg" data-id="<?php echo htmlspecialchars($friend['pID']); ?>">
+                                            <a href="user_profile.php?id=<?php echo htmlspecialchars($friend['pID']); ?>" class="flex items-center ">
                                                 <img src="<?php echo htmlspecialchars($friend['profile_picture']) ?: '../../images/pfp/default.jpg'; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="w-10 h-10 rounded-full mr-2">
                                                 <div>
                                                     <p class="font-semibold"><?php echo htmlspecialchars($friend['fname'] . ' ' . $friend['lname']); ?></p>
@@ -349,7 +372,10 @@ mysqli_close($conn);
                 },
                 body: 'friendID=<?= $userID ?>'
             })
-            .then(response => response.json())
+            then(response => {
+    console.log('Raw response:', response);
+    return response.json();
+})
             .then(data => {
                 if (data.success) {
                     toastr.success('Friendship canceled.');
