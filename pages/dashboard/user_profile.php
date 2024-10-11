@@ -83,7 +83,7 @@ $sql = "
     FROM nx_users u
     LEFT JOIN nx_user_batches ub ON u.pID = ub.pID
     LEFT JOIN nx_batches b ON ub.batchID = b.batchID
-    WHERE u.pID = $userID";
+    WHERE u.pID = $userID AND ub.is_active = 1";
 $result = mysqli_query($conn, $sql);
 
 if ($result && mysqli_num_rows($result) > 0) {
@@ -104,7 +104,7 @@ mysqli_close($conn);
         .cover-photo {
             height: 350px;
             background-color: #f0f2f5;
-            background-image: url('path_to_default_cover_photo.jpg');
+            background-image: url('../../images/OIP.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -132,7 +132,24 @@ mysqli_close($conn);
                 <div class="cover-photo relative">
                     <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent">
                         <div class="flex items-end">
-                            <img src="../../images/pfp/<?= htmlspecialchars($userDetails['profile_picture'] ?: '../../images/pfp/default.jpg') ?>" alt="Profile Picture" class="w-40 h-40 rounded-full border-4 border-white">
+                        <form id="profilePictureForm" enctype="multipart/form-data" method="post">
+                            <img 
+                                src="../../images/pfp/<?= htmlspecialchars($userDetails['profile_picture'] ?: '../../images/pfp/default.jpg') ?>" 
+                                alt="Profile Picture" 
+                                class="w-40 h-40 rounded-full border-4 border-white cursor-pointer" 
+                                id="profileImagePreview" 
+                                onclick="document.getElementById('profilePictureInput').click();"
+                            >
+                            <input 
+                                type="file" 
+                                id="profilePictureInput" 
+                                name="profile_picture" 
+                                accept="image/*" 
+                                style="display: none;"
+                            >
+                        </form>
+
+
                             <div class="ml-4 text-white">
                                 <h1 class="text-3xl font-bold"><?= htmlspecialchars($userDetails['fname'] . ' ' . $userDetails['lname']) ?></h1>
                                 <p class="text-lg">@<?= htmlspecialchars($userDetails['username']) ?></p>
@@ -180,10 +197,10 @@ mysqli_close($conn);
                             <!-- Main Content -->
                             <div class="md:col-span-2">
                                 <!-- Status Update Box -->
-                                <div class="bg-white shadow rounded-lg p-4 mb-4" <?=$hidden?>>
+                                <!-- <div class="bg-white shadow rounded-lg p-4 mb-4" <?=$hidden?>>
                                     <textarea class="w-full p-2 border rounded-lg" placeholder="What's on your mind?"></textarea>
                                     <button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg">Post</button>
-                                </div>
+                                </div> -->
 
                                 <!-- Timeline Posts -->
                                 <div class="bg-white shadow rounded-lg p-4 mb-4">
@@ -250,7 +267,8 @@ mysqli_close($conn);
 
                                     <?php if (!empty($userDetails['batch_name'])): ?>
                                         <p><strong>Batch:</strong> <?= htmlspecialchars($userDetails['batch_name']) ?></p>
-                                        <p><strong>Graduation Date:</strong> <?= htmlspecialchars($userDetails['batch_date']) ?></p>
+                                        <p><strong>Graduation Date:</strong> <?= htmlspecialchars(date('F j, Y', strtotime($userDetails['batch_date']))) ?>
+                                        </p>
                                     <?php else: ?>
                                         <p><strong>Batch:</strong> No information available.</p>
                                     <?php endif; ?>
@@ -271,7 +289,7 @@ mysqli_close($conn);
                                     <?php foreach ($friends as $friend): ?>
                                         <li class="md:mb-0 mb-3 flex items-center bg-gray-100 p-2 rounded-lg" data-id="<?php echo htmlspecialchars($friend['pID']); ?>">
                                             <a href="user_profile.php?id=<?php echo htmlspecialchars($friend['pID']); ?>" class="flex items-center ">
-                                                <img src="<?php echo htmlspecialchars($friend['profile_picture']) ?: '../../images/pfp/default.jpg'; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="w-10 h-10 rounded-full mr-2">
+                                                <img src="../../images/pfp/<?php echo htmlspecialchars($friend['profile_picture']) ?: '../../images/pfp/default.jpg'; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="w-10 h-10 rounded-full mr-2">
                                                 <div>
                                                     <p class="font-semibold"><?php echo htmlspecialchars($friend['fname'] . ' ' . $friend['lname']); ?></p>
                                                     <p class="text-gray-600">@<?php echo htmlspecialchars($friend['username']); ?></p>
@@ -302,9 +320,44 @@ mysqli_close($conn);
     </div>
 
     <script>
+    
         const addFriendBtn = document.getElementById('addFriendBtn');
         const cancelFriendBtn = document.getElementById('cancelFriendBtn');
         const cancelRequestBtn = document.getElementById('cancelRequestBtn');
+
+        document.getElementById('profilePictureInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('profile_picture', file);
+
+                // Send the image to the server
+                fetch('../dashboard/query/upload_profile_picture.php', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the profile picture preview
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('profileImagePreview').src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                        toastr.success('Profile picture updated successfully!');
+                    } else {
+                        toastr.error('Failed to update profile picture. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.log('Error:', error);
+                    toastr.error('An error occurred. Please try again.');
+                });
+            }
+        });
+
+
         document.querySelectorAll('#friends li').forEach(item => {
             item.addEventListener('click', function() {
                 const friendId = this.getAttribute('data-id');
@@ -373,9 +426,9 @@ mysqli_close($conn);
                 body: 'friendID=<?= $userID ?>'
             })
             then(response => {
-    console.log('Raw response:', response);
-    return response.json();
-})
+                console.log('Raw response:', response);
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     toastr.success('Friendship canceled.');

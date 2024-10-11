@@ -54,7 +54,7 @@ if (empty($results)) {
             echo '
             <a href="../../pages/dashboard/user_profile.php?id=' . $user['pID'] . '" class="block hover:bg-gray-100">
                 <div class="flex items-center p-4 border-b">
-                    <img src="' . $profilePic . '" alt="' . htmlspecialchars($user['username']) . '" class="w-10 h-10 rounded-full mr-3">
+                    <img src="../../images/pfp/' . $profilePic . '" alt="' . htmlspecialchars($user['username']) . '" class="w-10 h-10 rounded-full mr-3">
                     <div>
                         <p class="font-semibold">' . htmlspecialchars($user['username']) . '</p>
                         <p class="text-sm text-gray-600">' . htmlspecialchars($user['fname'] . ' ' . $user['lname']) . '</p>
