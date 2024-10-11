@@ -10,7 +10,7 @@ if (!isset($_SESSION['user'])) {
         <li><a href="../../pages/dashboard/dashboard.php" class="block py-2 px-4 hover:bg-gray-200">Dashboard</a></li>
         <li><a href="../../pages/dashboard/user_profile.php?id=<?php echo htmlspecialchars($user['id']); ?>" class="block py-2 px-4 hover:bg-gray-200">Profile</a></li>
         <li><a href="../../pages/dashboard/batch.php" class="block py-2 px-4 hover:bg-gray-200">Batch</a></li>
-        <li><a href="../job_list.php" class="block py-2 px-4 hover:bg-gray-200">Job List</a></li>
+        <li><a href="../../pages/dashboard/job_list.php" class="block py-2 px-4 hover:bg-gray-200">Job List</a></li>
         <li><a href="../alumni.php" class="block py-2 px-4 hover:bg-gray-200">Alumni</a></li>
         <li><a href="../settings.php" class="block py-2 px-4 hover:bg-gray-200">Settings</a></li>
         <li><a href="../pages/session_stop.php" class="sm:hidden block py-2 px-4 hover:bg-gray-200">Logout</a></li>
