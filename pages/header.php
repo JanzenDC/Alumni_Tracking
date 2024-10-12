@@ -9,7 +9,7 @@ $username = $_SESSION["user"]["username"];
 <nav class="bg-gray-800 p-4">
     <div class="container mx-auto flex justify-between items-center">
         <div class="text-white text-lg font-bold flex items-center">
-            <i class="fas fa-bars mr-2"></i>
+            <i class="fas fa-bars mr-2 " onclick="toggleSidebar()"></i>
             <a href="../../pages/dashboard/dashboard.php" class="hover:text-gray-300">Dashboard</a>
         </div>
         <div class="relative flex justify-center">
@@ -90,4 +90,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 </script>

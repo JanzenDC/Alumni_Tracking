@@ -1,15 +1,32 @@
 <?php
 session_start();
-
+require_once '../../backend/db_connect.php';
 // Check if the user is logged in
 if (!isset($_SESSION['user'])) {
     header('Location: ../../index.php'); // Redirect to login page if not logged in
     exit;
 }
 
-// Access user data from the session
 $user = $_SESSION['user'];
+// Query to check if the user has employee details
+$userId = $user['id']; // Assuming 'id' is the user ID in the session
+$sql = "SELECT * FROM nx_employees WHERE pID = $userId";
+$result = $conn->query($sql);
+$holding = "";
+// Check if there are any employee details
+if ($result->num_rows ===0) {
+    // No employee details found, show notification
+    $holding = '
+    <div class="mb-3 p-2 w-full flex justify-between items-center bg-red-300 text-red-700 rounded">
+        <p>You have not set your employee details. Click <a href="../dashboard/settings.php" class="font-bold cursor-pointer">here</a> to fill up</p>
+        <i class="fa-solid fa-x cursor-pointer" onclick="this.parentElement.style.display=\'none\'"></i>
+    </div>';
+}
+
+$result->close();
+$conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +43,7 @@ $user = $_SESSION['user'];
 
         <!-- Main Content Area -->
         <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+            <?= $holding ?>
             <h1 class="text-2xl font-bold mb-4">Welcome, <?php echo $user['fname']; ?>!</h1>
             <p class="mt-2">Here is your dashboard content.</p>
 
