@@ -11,7 +11,7 @@ if (!isset($_SESSION['user'])) {
 // Access user data from the session
 $user = $_SESSION['user'];
 $userId = $user['id'];
-$type = $user['user_type'];
+$type = $user['user_type']; // User type (assuming 2 is admin)
 
 // Pagination setup
 $limit = 5; // Number of batches per page
@@ -116,24 +116,33 @@ $conn->close();
                 <?php endif; ?>
             </div>
 
+            <!-- Admin button to create new batch -->
+            <?php if ($type == 2): // Admin ?>
+                <div class="mb-6">
+                    <button onclick="openModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600">
+                        Create New Batch
+                    </button>
+                </div>
+            <?php endif; ?>
+
             <div class="mb-6">
                 <div class="md:flex md:justify-between">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Explore Batches</h2>
-                <div class="flex justify-center mt-6">
-                    <?php if ($page > 1): ?>
-                        <a href="?page=<?php echo $page - 1; ?>" class="px-4 py-2 border rounded bg-blue-500 text-white hover:bg-blue-600">Previous</a>
-                    <?php endif; ?>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Explore Batches</h2>
+                    <div class="flex justify-center mt-6">
+                        <?php if ($page > 1): ?>
+                            <a href="?page=<?php echo $page - 1; ?>" class="px-4 py-2 border rounded bg-blue-500 text-white hover:bg-blue-600">Previous</a>
+                        <?php endif; ?>
 
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <a href="?page=<?php echo $i; ?>" class="px-4 py-2 border rounded <?php echo $i === $page ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'; ?> hover:bg-blue-600 hover:text-white">
-                            <?php echo $i; ?>
-                        </a>
-                    <?php endfor; ?>
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <a href="?page=<?php echo $i; ?>" class="px-4 py-2 border rounded <?php echo $i === $page ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'; ?> hover:bg-blue-600 hover:text-white">
+                                <?php echo $i; ?>
+                            </a>
+                        <?php endfor; ?>
 
-                    <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?php echo $page + 1; ?>" class="px-4 py-2 border rounded bg-blue-500 text-white hover:bg-blue-600">Next</a>
-                    <?php endif; ?>
-                </div>
+                        <?php if ($page < $total_pages): ?>
+                            <a href="?page=<?php echo $page + 1; ?>" class="px-4 py-2 border rounded bg-blue-500 text-white hover:bg-blue-600">Next</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 
                 <?php if (!empty($availableBatches)): ?>
@@ -167,15 +176,92 @@ $conn->close();
                 <?php endif; ?>
             </div>
 
-            <!-- Pagination -->
- 
         </div>
     </div>
 
+    <!-- Modal for Creating New Batch -->
+    <div id="createBatchModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
+            <h2 class="text-2xl font-semibold mb-4">Create New Batch</h2>
+            <form id="createBatchForm" onsubmit="createBatch(event)" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label for="batch_name" class="block text-sm font-medium text-gray-700">Batch Name</label>
+                    <input type="text" id="batch_name" name="batch_name" required class="border rounded p-2 w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="batch_date" class="block text-sm font-medium text-gray-700">Batch Date</label>
+                    <input type="datetime-local" id="batch_date" name="batch_date" required class="border rounded p-2 w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="profile" class="block text-sm font-medium text-gray-700">Profile Info</label>
+                    <input type="text" id="profile" name="profile" class="border rounded p-2 w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="cover_photo" class="block text-sm font-medium text-gray-700">Cover Photo (required)</label>
+                    <input type="file" id="cover_photo" name="cover_photo" required accept="image/*" class="border rounded p-2 w-full">
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="description" name="description" class="border rounded p-2 w-full"></textarea>
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Create Batch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <script>
+    function openModal() {
+        document.getElementById('createBatchModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('createBatchModal').classList.add('hidden');
+    }
+
+    function createBatch(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const formData = new FormData(document.getElementById('createBatchForm'));
+
+    fetch('create_batch.php', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Batch Created',
+                text: data.message,
+            });
+            closeModal(); // Close the modal
+            // Optionally refresh the page or update the UI
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while creating the batch.',
+        });
+    });
+}
+
+
     function joinBatch(batchId) {
-        // console.log(batchId)
-        // AJAX call to join the batch
         fetch('../dashboard/query/join_batch.php', {
             method: 'POST',
             headers: {
@@ -183,15 +269,10 @@ $conn->close();
             },
             body: 'batchId=' + batchId
         })
-        .then(response => {
-            console.log('Raw response:', response);
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log(data)
             if (data.success) {
                 toastr.success(data.message);
-                // Reload the page or update the UI as needed
                 setTimeout(() => location.reload(), 2000);
             } else {
                 toastr.error(data.message);
@@ -200,7 +281,6 @@ $conn->close();
         .catch(error => {
             console.error('Error:', error);
             toastr.error('An error occurred while joining the batch.');
-
         });
     }
 
