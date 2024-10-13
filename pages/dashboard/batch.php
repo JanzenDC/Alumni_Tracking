@@ -117,7 +117,7 @@ $conn->close();
             </div>
 
             <!-- Admin button to create new batch -->
-            <?php if ($type == 2): // Admin ?>
+            <?php if ($type == 2 || $type == 3): // Admin ?>
                 <div class="mb-6">
                     <button onclick="openModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600">
                         Create New Batch

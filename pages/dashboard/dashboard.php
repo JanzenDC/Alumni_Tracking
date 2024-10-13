@@ -10,7 +10,7 @@ if (!isset($_SESSION['user'])) {
 
 $user = $_SESSION['user'];
 $userId = $user['id']; // Assuming 'id' is the user ID in the session
-$isAdmin = ($user['user_type'] === '2'); // Check if the user is an admin
+$isAdmin = ($user['user_type'] > '2'); // Check if the user type is greater than 2
 
 // Fetch employee details
 $sql = "SELECT * FROM nx_employees WHERE pID = $userId";

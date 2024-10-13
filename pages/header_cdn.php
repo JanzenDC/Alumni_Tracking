@@ -17,3 +17,5 @@
 
 <!-- Font Awesome CSS -->
 <link rel="stylesheet" href="../../assets/css/all.css"> 
+<!-- CHART -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
