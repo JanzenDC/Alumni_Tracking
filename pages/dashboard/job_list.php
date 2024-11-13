@@ -45,7 +45,7 @@ $conn->close();
         <?php include '../sidebar.php';  // Include the sidebar ?>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div class="flex-1 p-4 md:p-6  overflow-y-auto mb-16">
             <h2 class="text-2xl font-bold mb-6">Job Listings</h2>
             
             <?php if ($isAdmin): ?>

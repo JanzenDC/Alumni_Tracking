@@ -107,7 +107,7 @@ while ($row = $registration_counts_result->fetch_assoc()) {
         <?php include '../sidebar.php';  // Include the sidebar ?>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div class="flex-1 p-4 md:p-6 overflow-y-auto mb-16">
             <h2 class="text-2xl font-bold mb-6">ALUMNI</h2>
 
             <!-- Admin Section: Display Total Alumni -->
@@ -141,37 +141,44 @@ while ($row = $registration_counts_result->fetch_assoc()) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php if (count($users) > 0): ?>
         <?php foreach ($users as $row): ?>
-            <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
-                <a href="user_profile.php?id=<?php echo htmlspecialchars($row['pID']); ?>" class="flex items-center">
-                    <img 
-                        src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: 'default.jpg'); ?>" 
-                        alt="<?php echo htmlspecialchars($row['full_name']); ?>" 
-                        class="w-12 h-12 rounded-full mr-3"
-                    />
-                    <div>
-                        <p class="font-semibold"><?php echo htmlspecialchars($row['full_name']); ?></p>
-                        <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name'] ?: 'No Batch'); ?></p>
+            <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col">
+                <!-- Profile Information (left-aligned) -->
+                <a  class="flex items-center mb-3 justify-between">
+                    <div class="flex items-center">
+                        <img 
+                            src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: 'default.jpg'); ?>" 
+                            alt="<?php echo htmlspecialchars($row['full_name']); ?>" 
+                            class="w-12 h-12 rounded-full mr-3"
+                        />
+                        <div>
+                            <p class="font-semibold"><?php echo htmlspecialchars($row['full_name']); ?></p>
+                            <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name'] ?: 'No Batch'); ?></p>
+                        </div>
+                    </div>
+
+                    <!-- Action Button (right-aligned) -->
+                    <div class="flex items-center">
+                        <!-- Show buttons based on user type -->
+                        <?php if ($isAdmin && $row['user_type'] != '2' && $row['user_type'] != '3'): ?>
+                            <button class="bg-green-500 text-white rounded p-2" 
+                                    onclick="setAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
+                                Set Admin
+                            </button>
+                        <?php elseif ($isSuperAdmin): ?>
+                            <button class="bg-red-500 text-white rounded p-2" 
+                                    onclick="removeAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
+                                Remove Admin
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </a>
-
-                <!-- Show buttons based on user type -->
-                <?php if ($isAdmin && $row['user_type'] != '2' && $row['user_type'] != '3'): ?>
-                    <button class="bg-green-500 text-white rounded p-2 mt-2" 
-                            onclick="setAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
-                        Set Admin
-                    </button>
-                <?php elseif ($isSuperAdmin): ?>
-                    <button class="bg-red-500 text-white rounded p-2" 
-                            onclick="removeAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
-                        Remove Admin
-                    </button>
-                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     <?php else: ?>
         <p class="text-gray-500">No users found.</p>
     <?php endif; ?>
 </div>
+
 
             <!-- Pagination Links -->
             <div class="mt-6">
