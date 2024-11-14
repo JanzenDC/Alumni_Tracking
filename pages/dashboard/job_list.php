@@ -10,7 +10,7 @@ if (!isset($_SESSION['user'])) {
 
 // Access user data from the session
 $user = $_SESSION['user'];
-$isAdmin = $user['user_type'] === '2'; // Check if user is admin
+$isAdmin = (int)$user['user_type'] > 2; // Check if user type is greater than 2 // Check if user is admin
 
 // Pagination setup
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -48,7 +48,7 @@ $conn->close();
         <div class="flex-1 p-4 md:p-6  overflow-y-auto mb-16">
             <h2 class="text-2xl font-bold mb-6">Job Listings</h2>
             
-            <?php if ($isAdmin): ?>
+            <?php if ($isAdmin < 2): ?>
                 <button onclick="openCreateJobModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg mb-4">Create New Job</button>
             <?php endif; ?>
 
