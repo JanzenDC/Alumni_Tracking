@@ -107,7 +107,7 @@ while ($row = $registration_counts_result->fetch_assoc()) {
         <?php include '../sidebar.php';  // Include the sidebar ?>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto mb-16">
+        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6">ALUMNI</h2>
 
             <!-- Admin Section: Display Total Alumni -->
@@ -141,47 +141,37 @@ while ($row = $registration_counts_result->fetch_assoc()) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php if (count($users) > 0): ?>
                     <?php foreach ($users as $row): ?>
-                        <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col">
-                            <!-- Profile Information (left-aligned) -->
-                            <a class="flex items-center mb-3 justify-between">
-                                <div class="flex items-center">
-                                    <img 
-                                        src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: 'default.jpg'); ?>" 
-                                        alt="<?php echo htmlspecialchars($row['full_name']); ?>" 
-                                        class="w-12 h-12 rounded-full mr-3"
-                                    />
-                                    <div>
-                                        <p class="font-semibold"><?php echo htmlspecialchars($row['full_name']); ?></p>
-                                        <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name'] ?: 'No Batch'); ?></p>
-                                    </div>
-                                </div>
-
-                                <!-- Action Button (right-aligned) -->
-                                <div class="flex items-center gap-2">
-                                    <a href="../../pages/dashboard/user_profile.php?id=<?php echo urlencode($row['pID']); ?>" 
-                                    class="bg-blue-500 text-white rounded p-2 me-2">
-                                        View Profile
-                                    </a>
-
-                                    <!-- Show buttons based on user type -->
-                                    <?php if ($isAdmin && $row['user_type'] != '2' && $row['user_type'] != '3'): ?>
-                                        <button class="bg-green-500 text-white rounded p-2" 
-                                                onclick="setAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
-                                            Set Admin
-                                        </button>
-
-
-                                    <?php elseif ($isSuperAdmin): ?>
-                                        <button class="bg-red-500 text-white rounded p-2" 
-                                                onclick="removeAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
-                                            Remove Admin
-                                        </button>
-                                    <?php endif; ?>
+                        <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
+                            <a href="user_profile.php?id=<?php echo htmlspecialchars($row['pID']); ?>" class="flex items-center">
+                                <img 
+                                    src="../../images/pfp/<?php echo htmlspecialchars($row['profile_picture'] ?: 'default.jpg'); ?>" 
+                                    alt="<?php echo htmlspecialchars($row['full_name']); ?>" 
+                                    class="w-12 h-12 rounded-full mr-3"
+                                />
+                                <div>
+                                    <p class="font-semibold"><?php echo htmlspecialchars($row['full_name']); ?></p>
+                                    <p class="text-sm text-gray-600">Batch: <?php echo htmlspecialchars($row['batch_name'] ?: 'No Batch'); ?></p>
                                 </div>
                             </a>
 
-                            <!-- View Button that redirects to the user profile -->
-
+                            <!-- Show buttons based on user type -->
+                            <?php if ($isAdmin && $row['user_type'] != '2' && $row['user_type'] != '3'): ?>
+                                <button class="relative group bg-green-500 text-white rounded-full p-2 mt-2 hover:bg-green-600 transition"
+                                        onclick="setAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
+                                    <i class="fas fa-user-shield"></i> <!-- Set Admin Icon -->
+                                    <span class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Set Admin
+                                    </span>
+                                </button>
+                            <?php elseif ($isSuperAdmin): ?>
+                                <button class="relative group bg-red-500 text-white rounded-full p-2 mt-2 hover:bg-red-600 transition"
+                                        onclick="removeAdmin(<?php echo htmlspecialchars($row['pID']); ?>)">
+                                    <i class="fas fa-user-slash"></i> <!-- Remove Admin Icon -->
+                                    <span class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Remove Admin
+                                    </span>
+                                </button>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -316,8 +306,16 @@ while ($row = $registration_counts_result->fetch_assoc()) {
                     <?php echo isset($registration_data[2]) ? $registration_data[2] : 0; ?>,
                     <?php echo isset($registration_data[3]) ? $registration_data[3] : 0; ?>
                 ],
-                backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(255, 99, 132, 1)'],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)', // Green
+                    'rgba(54, 162, 235, 0.2)', // Blue
+                    'rgba(255, 206, 86, 0.2)'  // Gold
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)', // Green
+                    'rgba(54, 162, 235, 1)', // Blue
+                    'rgba(255, 206, 86, 1)'  // Gold
+                ],
                 borderWidth: 1
             }]
         },

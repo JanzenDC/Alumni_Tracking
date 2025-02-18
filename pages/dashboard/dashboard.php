@@ -48,6 +48,21 @@ $conn->close();
     <?php include_once '../header_cdn.php'; ?>
     <title>User Dashboard</title>
     <style>
+    /* Define pastel colors */
+    .bg-pastel-blue { background-color: #D6EAF8; }
+    .bg-pastel-green { background-color: #D4EFDF; }
+    .bg-pastel-yellow { background-color: #FCF3CF; }
+    .bg-pastel-pink { background-color: #FADBD8; }
+    .bg-pastel-purple { background-color: #E8DAEF; }
+
+    /* Blinking Announcement Icon */
+    @keyframes blink {
+        50% { opacity: 0.4; }
+    }
+
+    .blinking {
+        animation: blink 1s infinite alternate;
+    }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -82,37 +97,59 @@ $conn->close();
             <?php endif; ?>
 
             <!-- List of Events -->
-            <div class="mt-4 bg-white shadow rounded-lg p-4">
-                <h2 class="text-lg font-semibold flex justify-between items-center">
-                    List of Events:
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+            <div class="mt-4 bg-white shadow-lg rounded-lg p-5">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2 ">
+                    <i class="fas fa-calendar-alt text-blue-500"></i> List of Events
                 </h2>
-                <div id="" class="mt-2">
+                
+                <div class="mt-3 p-5">
                     <?php if (count($events) > 0): ?>
-                        <ul>
+                        <ul class="space-y-4">
+                            <?php 
+                            $pastelColors = ['bg-pastel-blue', 'bg-pastel-green', 'bg-pastel-yellow', 'bg-pastel-pink', 'bg-pastel-purple'];
+                            $colorIndex = 0;
+                            ?>
+
                             <?php foreach ($events as $event): 
                                 $date = new DateTime($event['event_date']);
-                                $formattedDate = $date->format('l, F j, Y \a\t g:i A'); // Example: "Friday, October 12, 2024 at 3:30 PM"
-                                ?>
-                                <li class="border-b py-2 drop-shadow-sm">
-                                    
-                                    <strong><?php echo htmlspecialchars($event['event_name']); ?></strong><br>
-                                    <em><?php echo htmlspecialchars($formattedDate); ?></em><br>
-                                    <p><?php echo htmlspecialchars($event['description']); ?></p>
-                                    <?php if ($isAdmin): ?>
-                                        <form action="../dashboard/query/delete_event.php" method="POST" class="inline" onsubmit="return confirmDelete(event)">
-                                            <input type="hidden" name="eventID" value="<?php echo htmlspecialchars($event['eventID']); ?>">
-                                            <button type="submit" class="text-red-500 hover:underline">Delete</button>
-                                        </form>
+                                $formattedDate = $date->format('l, F j, Y \a\t g:i A'); 
+                                $currentColor = $pastelColors[$colorIndex % count($pastelColors)]; 
+                                $colorIndex++;
+                            ?>
+                                <li class="p-4 rounded-lg shadow-md hover:shadow-lg transition <?php echo $currentColor; ?>">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                                <i class="fas fa-bullhorn text-green-500 blinking"></i> 
+                                                <?php echo htmlspecialchars($event['event_name']); ?>
+                                            </h3>
+                                            <p class="text-sm text-gray-600">
+                                                <i class="fas fa-clock text-gray-500"></i>
+                                                <?php echo htmlspecialchars($formattedDate); ?>
+                                            </p>
+                                            <p class="text-gray-700 mt-1"><?php echo htmlspecialchars($event['description']); ?></p>
+                                        </div>
 
-                                    <?php endif; ?>
+                                        <?php if ($isAdmin): ?>
+                                            <form action="../dashboard/query/delete_event.php" method="POST" class="ml-4" onsubmit="return confirmDelete(event)">
+                                                <input type="hidden" name="eventID" value="<?php echo htmlspecialchars($event['eventID']); ?>">
+                                                <button type="submit" class="text-red-500 hover:text-red-700 transition">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php else: ?>
-                        <p>No events found.</p>
+                        <p class="text-gray-500 text-center py-4">No events found.</p>
                     <?php endif; ?>
                 </div>
             </div>
+
         </div>
     </div>
 

@@ -19,3 +19,4 @@
 <link rel="stylesheet" href="../../assets/css/all.css"> 
 <!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/@tailwindcss/browser@4"></script>

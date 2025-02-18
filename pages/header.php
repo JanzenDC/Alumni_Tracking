@@ -6,21 +6,21 @@ if (!isset($_SESSION['user'])) {
 $username = $_SESSION["user"]["username"];
 ?>
 
-<nav class="bg-gray-800 p-4">
+<nav class="bg-blue-800 p-4">
     <div class="container mx-auto flex justify-between items-center">
         <div class="text-white text-lg font-bold flex items-center">
             <i class="fas fa-bars mr-2 " onclick="toggleSidebar()"></i>
             <a href="../../pages/dashboard/dashboard.php" class="hover:text-gray-300">Dashboard</a>
         </div>
         <div class="relative flex justify-center">
-            <input type="text" id="search-input" placeholder="Search users..." class="md:w-96 w-full bg-gray-700 text-white rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-input" placeholder="Search users..." class="md:w-96 w-full bg-blue-700 text-white rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
             <div id="search-results" class="absolute w-96 mt-[50px] bg-white rounded-md shadow-lg hidden z-50 max-h-96 overflow-y-auto" style="min-width: 16rem;"></div>
         </div>
         <div class="flex space-x-4 relative">
-            <p id="username" class="text-gray-300 hover:text-white cursor-pointer"><?= htmlspecialchars($username) ?></p>
+            <p id="username" class="text-white hover:text-white cursor-pointer"><?= htmlspecialchars($username) ?></p>
             <div id="dropdown" class="absolute right-0 hidden bg-white shadow-lg rounded-md mt-[40px] w-40">
-                <a href="#" id="logout" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a>
+                <a href="#" id="logout" class="block px-4 py-2 text-gray-800 hover:bg-blue-200">Logout</a>
             </div>
         </div>
     </div>

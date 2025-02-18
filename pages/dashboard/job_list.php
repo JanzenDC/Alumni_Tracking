@@ -54,7 +54,7 @@ $conn->close();
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php if ($result->num_rows > 0): ?>
                     <?php while ($job = $result->fetch_assoc()): ?>
-                        <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <div class="bg-yellow-100 p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
                             <h3 class="text-xl font-semibold mb-2"><?php echo htmlspecialchars($job['title']); ?></h3>
                             <p class="text-gray-600 mb-4"><?php echo htmlspecialchars($job['description']); ?></p>
                             <p class="text-gray-500 text-sm">Posted on: <?php echo date('Y-m-d h:i A', strtotime($job['created_at'])); ?></p>
