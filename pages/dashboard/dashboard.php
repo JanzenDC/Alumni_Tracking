@@ -56,7 +56,7 @@ $conn->close();
         <?php include '../sidebar.php'; ?>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div class="flex-1 p-4 md:p-6  overflow-y-auto mb-16">
             <?= $holding ?>
             <h1 class="text-2xl font-bold mb-4">Welcome, <?php echo htmlspecialchars($user['fname']); ?>!</h1>
             <p class="mt-2">Here is your dashboard content.</p>

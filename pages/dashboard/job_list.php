@@ -10,8 +10,7 @@ if (!isset($_SESSION['user'])) {
 
 // Access user data from the session
 $user = $_SESSION['user'];
-$isAdmin = $user['user_type'] === '2'; // Check if user is admin
-
+$isAdmin = $user['user_type'] === '2' || $user['user_type'] === '3';
 // Pagination setup
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 5; // Number of jobs per page
@@ -45,7 +44,7 @@ $conn->close();
         <?php include '../sidebar.php';  // Include the sidebar ?>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div class="flex-1 p-4 md:p-6  overflow-y-auto mb-16">
             <h2 class="text-2xl font-bold mb-6">Job Listings</h2>
             
             <?php if ($isAdmin): ?>
