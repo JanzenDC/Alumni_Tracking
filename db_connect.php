@@ -2,7 +2,7 @@
 $host = 'localhost'; 
 $username = 'root'; 
 $password = '';
-$database = 'your_database'; 
+$database = 'alumni_tracking'; 
 
 
 $conn = new mysqli($host, $username, $password, $database);

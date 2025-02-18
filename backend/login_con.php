@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header('Location: ../index.php'); // Redirect to the login page
     }
 
-    // Close connection
+    // Close   
     $conn->close();
 }
 ?>
