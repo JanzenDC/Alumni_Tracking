@@ -229,40 +229,24 @@ mysqli_close($conn);
                                     <h3 class="text-lg font-semibold mb-2">Basic Information</h3>
                                     <p><strong>Name:</strong> <?= htmlspecialchars($userDetails['fname'] . ' ' . $userDetails['lname']) ?></p>
                                     <p><strong>Username:</strong> <?= htmlspecialchars($userDetails['username']) ?></p>
-                                    <p><strong>Email:</strong> <?= htmlspecialchars($userDetails['email']) ?></p>
-                                    <p><strong>Date of Birth:</strong> <?= htmlspecialchars($userDetails['date_of_birth']) ?></p>
-                                    <p><strong>Phone Number:</strong> <?= htmlspecialchars($userDetails['phone_number']) ?></p>
-                                    <p><strong>Address:</strong> <?= htmlspecialchars($userDetails['address']) . ', ' . htmlspecialchars($userDetails['city']) . ', ' . htmlspecialchars($userDetails['state']) . ' ' . htmlspecialchars($userDetails['zip_code']) . ', ' . htmlspecialchars($userDetails['country']) ?></p>
+
+                                    <!-- Hide sensitive info if not own profile or not a friend -->
+                                    <p><strong>Email:</strong> <?= $isOwnProfile || $isFriend ? htmlspecialchars($userDetails['email']) : '<span style="color: gray; font-style: italic;">Hidden</span>' ?></p>
+                                    <p><strong>Date of Birth:</strong> <?= $isOwnProfile || $isFriend ? htmlspecialchars($userDetails['date_of_birth']) : '<span style="color: gray; font-style: italic;">Hidden</span>' ?></p>
+                                    <p><strong>Phone Number:</strong> <?= $isOwnProfile || $isFriend ? htmlspecialchars($userDetails['phone_number']) : '<span style="color: gray; font-style: italic;">Hidden</span>' ?></p>
+                                    <p><strong>Address:</strong> <?= $isOwnProfile || $isFriend ? htmlspecialchars($userDetails['address']) . ', ' . htmlspecialchars($userDetails['city']) . ', ' . htmlspecialchars($userDetails['state']) . ' ' . htmlspecialchars($userDetails['zip_code']) . ', ' . htmlspecialchars($userDetails['country']) : '<span style="color: gray; font-style: italic;">Hidden</span>' ?></p>
                                 </div>
+
                                 <div>
                                     <h3 class="text-lg font-semibold mb-2">Additional Information</h3>
-                                    <?php if (!empty($userDetails['bio'])): ?>
-                                        <p><strong>Bio:</strong> <?= nl2br(htmlspecialchars($userDetails['bio'])) ?></p>
-                                    <?php else: ?>
-                                        <p><strong>Bio:</strong> No information available.</p>
-                                    <?php endif; ?>
 
-                                    <?php if (!empty($userDetails['position'])): ?>
-                                        <p><strong>Position:</strong> <?= htmlspecialchars($userDetails['position']) ?></p>
-                                    <?php else: ?>
-                                        <p><strong>Position:</strong> No information available.</p>
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($userDetails['department'])): ?>
-                                        <p><strong>Department:</strong> <?= htmlspecialchars($userDetails['department']) ?></p>
-                                    <?php else: ?>
-                                        <p><strong>Department:</strong> No information available.</p>
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($userDetails['batch_name'])): ?>
-                                        <p><strong>Batch:</strong> <?= htmlspecialchars($userDetails['batch_name']) ?></p>
-                                        <p><strong>Graduation Date:</strong> <?= htmlspecialchars(date('F j, Y', strtotime($userDetails['batch_date']))) ?>
-                                        </p>
-                                    <?php else: ?>
-                                        <p><strong>Batch:</strong> No information available.</p>
-                                    <?php endif; ?>
+                                    <p><strong>Bio:</strong> <?= !empty($userDetails['bio']) ? nl2br(htmlspecialchars($userDetails['bio'])) : 'No information available.' ?></p>
+                                    <p><strong>Position:</strong> <?= !empty($userDetails['position']) ? htmlspecialchars($userDetails['position']) : 'No information available.' ?></p>
+                                    <p><strong>Department:</strong> <?= !empty($userDetails['department']) ? htmlspecialchars($userDetails['department']) : 'No information available.' ?></p>
+                                    
+                                    <p><strong>Batch:</strong> <?= !empty($userDetails['batch_name']) ? htmlspecialchars($userDetails['batch_name']) : 'No information available.' ?></p>
+                                    <p><strong>Graduation Date:</strong> <?= !empty($userDetails['batch_date']) ? htmlspecialchars(date('F j, Y', strtotime($userDetails['batch_date']))) : 'No information available.' ?></p>
                                 </div>
-
                             </div>
                         </div>
                     </div>

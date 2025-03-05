@@ -5,7 +5,6 @@ if (!isset($_SESSION['user'])) {
 }
 $username = $_SESSION["user"]["username"];
 ?>
-
 <nav class="bg-blue-800 p-4">
     <div class="container mx-auto flex justify-between items-center">
         <div class="text-white text-lg font-bold flex items-center">
@@ -19,7 +18,7 @@ $username = $_SESSION["user"]["username"];
         </div>
         <div class="flex space-x-4 relative">
             <p id="username" class="text-white hover:text-white cursor-pointer"><?= htmlspecialchars($username) ?></p>
-            <div id="dropdown" class="absolute right-0 hidden bg-white shadow-lg rounded-md mt-[40px] w-40">
+            <div id="dropdown" class="absolute right-0 hidden bg-white shadow-lg rounded-md mt-[40px] w-40 z-50">
                 <a href="#" id="logout" class="block px-4 py-2 text-gray-800 hover:bg-blue-200">Logout</a>
             </div>
         </div>
@@ -90,5 +89,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
 </script>
