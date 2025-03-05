@@ -151,7 +151,7 @@ mysqli_close($conn);
                             </div>
                             <?php if (!$isOwnProfile): ?>
                                 <?php if ($isFriend): ?>
-                                    <button id="cancelFriendBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">Cancel Friendship</button>
+                                    <button id="cancelFriendBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">Remove Friend</button>
                                 <?php elseif ($isPendingRequest): ?>
                                     <button id="cancelRequestBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">Cancel Request</button>
                                 <?php else: ?>
@@ -292,160 +292,132 @@ mysqli_close($conn);
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    
-        const addFriendBtn = document.getElementById('addFriendBtn');
-        const cancelFriendBtn = document.getElementById('cancelFriendBtn');
-        const cancelRequestBtn = document.getElementById('cancelRequestBtn');
+var userID = <?= $userID ?>;
+$(document).ready(function () {
+    $('#profilePictureInput').on('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
 
-        document.getElementById('profilePictureInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('profile_picture', file);
-
-                // Send the image to the server
-                fetch('../dashboard/query/upload_profile_picture.php', {
-                    method: 'POST',
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
+            $.ajax({
+                url: '../dashboard/query/upload_profile_picture.php',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function (data) {
                     if (data.success) {
-                        // Update the profile picture preview
                         const reader = new FileReader();
-                        reader.onload = function(e) {
-                            document.getElementById('profileImagePreview').src = e.target.result;
+                        reader.onload = function (e) {
+                            $('#profileImagePreview').attr('src', e.target.result);
                         };
                         reader.readAsDataURL(file);
                         toastr.success('Profile picture updated successfully!');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
                     } else {
                         toastr.error('Failed to update profile picture. Please try again.');
                     }
-                })
-                .catch(error => {
-                    console.log('Error:', error);
+                },
+                error: function () {
                     toastr.error('An error occurred. Please try again.');
-                });
-            }
-        });
-
-
-        document.querySelectorAll('#friends li').forEach(item => {
-            item.addEventListener('click', function() {
-                const friendId = this.getAttribute('data-id');
-                console.log('Friend ID:', friendId);
-                // You can now use friendId for further actions, like redirecting to their profile page
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const tabName = button.getAttribute('data-tab');
-                    
-                    tabButtons.forEach(btn => btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    
-                    button.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-                    document.getElementById(tabName).classList.add('active');
-                });
-            });
-        });
-        if (addFriendBtn) {
-            document.addEventListener('DOMContentLoaded', function() {
-                const addFriendBtn = document.getElementById('addFriendBtn');
-                if (addFriendBtn) {
-                    addFriendBtn.addEventListener('click', function() {
-                        // Send AJAX request to add friend
-                        fetch('../dashboard/query/add_friend.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: 'friendID=<?= $userID ?>'
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                toastr.success('Friend request sent!');
-                                addFriendBtn.style.display = 'none';
-                            } else {
-                                toastr.error('Failed to send friend request. Please try again.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            toastr.error('An error occurred. Please try again.');
-                        });
-                    });
                 }
             });
         }
+    });
 
+    $('#friends li').on('click', function () {
+        const friendId = $(this).data('id');
+        console.log('Friend ID:', friendId);
+    });
 
+    $('.tab-button').on('click', function () {
+        const tabName = $(this).data('tab');
+        $('.tab-button').removeClass('text-blue-600 border-b-2 border-blue-600');
+        $('.tab-content').removeClass('active');
+        $(this).addClass('text-blue-600 border-b-2 border-blue-600');
+        $('#' + tabName).addClass('active');
+    });
 
-    // Cancel Friendship button logic
-    if (cancelFriendBtn) {
-        cancelFriendBtn.addEventListener('click', function() {
-            fetch('../dashboard/query/cancel_friend.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'friendID=<?= $userID ?>'
-            })
-            then(response => {
-                console.log('Raw response:', response);
-                return response.json();
-            })
-            .then(data => {
+    $('#addFriendBtn').on('click', function () {
+        $.ajax({
+            url: '../dashboard/query/add_friend.php',
+            type: 'POST',
+            data: { friendID: userID },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    toastr.success('Friend request sent!');
+                    $('#addFriendBtn').hide();
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    toastr.error('Failed to send friend request. Please try again.');
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    $('#cancelFriendBtn').on('click', function () {
+        $.ajax({
+            url: '../dashboard/query/cancel_friend.php',
+            type: 'POST',
+            data: { friendID: userID },
+            dataType: 'json',
+            success: function (data) {
                 if (data.success) {
                     toastr.success('Friendship canceled.');
-                    cancelFriendBtn.style.display = 'none';
-                    addFriendBtn.style.display = 'block'; // Show add friend button if needed
+                    $('#cancelFriendBtn').hide();
+                    $('#addFriendBtn').show();
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
                 } else {
                     toastr.error(data.message);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            },
+            error: function () {
                 toastr.error('An error occurred. Please try again.');
-            });
+            }
         });
-    }
+    });
 
-    // Cancel Request button logic
-    if (cancelRequestBtn) {
-        cancelRequestBtn.addEventListener('click', function() {
-            fetch('../dashboard/query/cancel_friend.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'friendID=<?= $userID ?>'
-            })
-            .then(response => response.json())
-            .then(data => {
+    $('#cancelRequestBtn').on('click', function () {
+        $.ajax({
+            url: '../dashboard/query/cancel_friendrequest.php',
+            type: 'POST',
+            data: { friendID: userID },
+            dataType: 'json',
+            success: function (data) {
                 if (data.success) {
                     toastr.success('Friend request canceled.');
-                    cancelRequestBtn.style.display = 'none'; // Hide cancel request button
-                    addFriendBtn.style.display = 'block'; // Show add friend button if needed
+                    $('#cancelRequestBtn').hide();
+                    $('#addFriendBtn').show();
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
                 } else {
                     toastr.error(data.message);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            },
+            error: function () {
                 toastr.error('An error occurred. Please try again.');
-            });
+            }
         });
-    }
+    });
+});
+</script>
 
-    </script>
+
 
     <?php if (isset($_SESSION['toastr_message'])): ?>
         <script>

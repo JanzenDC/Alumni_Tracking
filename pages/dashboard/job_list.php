@@ -2,31 +2,26 @@
 session_start();
 require_once '../../backend/db_connect.php';
 
-// Check if the user is logged in
 if (!isset($_SESSION['user'])) {
-    header('Location: ../../index.php'); // Redirect to login page if not logged in
+    header('Location: ../../index.php');
     exit;
 }
 
-// Access user data from the session
 $user = $_SESSION['user'];
 $isAdmin = $user['user_type'] === '2' || $user['user_type'] === '3';
-// Pagination setup
+
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 5; // Number of jobs per page
+$limit = 5;
 $offset = ($page - 1) * $limit;
 
-// Fetch job listings
 $query = "SELECT * FROM nx_job_postings LIMIT $limit OFFSET $offset";
 $result = $conn->query($query);
 
-// Count total jobs for pagination
 $totalJobsQuery = "SELECT COUNT(*) as total FROM nx_job_postings";
 $totalResult = $conn->query($totalJobsQuery);
 $totalJobs = $totalResult->fetch_assoc()['total'];
 $totalPages = ceil($totalJobs / $limit);
 
-// Close the database connection
 $conn->close();
 ?>
 
@@ -37,15 +32,25 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include_once '../header_cdn.php'; ?>
     <title>User Dashboard</title>
+    <style>
+        @keyframes blink {
+            50% { opacity: 0.3; }
+        }
+        .blinking-pin {
+            color: red;
+            animation: blink 1s infinite;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
-    <?php include '../header.php';  // Include the header ?>
+    <?php include '../header.php'; ?>
     <div class="flex h-screen">
-        <?php include '../sidebar.php';  // Include the sidebar ?>
+        <?php include '../sidebar.php'; ?>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-6  overflow-y-auto mb-16">
-            <h2 class="text-2xl font-bold mb-6">Job Listings</h2>
+        <div class="flex-1 p-4 md:p-6 overflow-y-auto mb-16">
+            <h2 class="text-2xl font-bold mb-6">
+                Job Listings 
+            </h2>
             
             <?php if ($isAdmin): ?>
                 <button onclick="openCreateJobModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg mb-4">Create New Job</button>
@@ -55,7 +60,7 @@ $conn->close();
                 <?php if ($result->num_rows > 0): ?>
                     <?php while ($job = $result->fetch_assoc()): ?>
                         <div class="bg-yellow-100 p-4 rounded-lg shadow hover:shadow-lg transition-shadow">
-                            <h3 class="text-xl font-semibold mb-2"><?php echo htmlspecialchars($job['title']); ?></h3>
+                            <h3 class="text-xl font-semibold mb-2"><i class="fas fa-thumbtack blinking-pin"></i> <?php echo htmlspecialchars($job['title']); ?></h3>
                             <p class="text-gray-600 mb-4"><?php echo htmlspecialchars($job['description']); ?></p>
                             <p class="text-gray-500 text-sm">Posted on: <?php echo date('Y-m-d h:i A', strtotime($job['created_at'])); ?></p>
                             <?php if ($isAdmin): ?>
@@ -68,7 +73,6 @@ $conn->close();
                 <?php endif; ?>
             </div>
 
-            <!-- Pagination -->
             <div class="flex justify-center mt-6">
                 <nav>
                     <ul class="flex space-x-2">
@@ -88,7 +92,6 @@ $conn->close();
         </div>
     </div>
 
-    <!-- Create Job Modal -->
     <div id="createJobModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
             <h2 class="text-2xl font-semibold mb-4">Create New Job</h2>
@@ -138,7 +141,6 @@ $conn->close();
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
                 toastr.error('An error occurred while creating the job.');
             });
         }
@@ -177,21 +179,16 @@ $conn->close();
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
                 toastr.error('An error occurred while deleting the job.');
             });
         }
     </script>
 
-    <!-- Toastr Notifications -->
     <?php if (isset($_SESSION['toastr_message'])): ?>
         <script>
             $(document).ready(function() {
                 toastr.<?php echo $_SESSION['toastr_type']; ?>('<?php echo $_SESSION['toastr_message']; ?>');
-                <?php
-                unset($_SESSION['toastr_message']);
-                unset($_SESSION['toastr_type']);
-                ?>
+                <?php unset($_SESSION['toastr_message'], $_SESSION['toastr_type']); ?>
             });
         </script>
     <?php endif; ?>

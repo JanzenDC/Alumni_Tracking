@@ -16,7 +16,7 @@ if (isset($_POST['friendID'])) {
 
     // Construct the SQL query to delete the friend request if status is 0
     $sql = "DELETE FROM nx_friends 
-            WHERE userID1 = $userID1 AND userID2 = $userID2 AND status = 1";
+            WHERE userID1 = $userID1 AND userID2 = $userID2 AND status = 0";
 
     // Execute the SQL query
     if ($conn->query($sql) === TRUE) {
