@@ -1,25 +1,24 @@
 <?php
 require '../../../backend/db_connect.php';
 
-// Check if request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userID = $_POST['userID'];
+    $userID = intval($_POST['userID']);
     $action = $_POST['action'];
 
-    // Sanitize user input
-    $userID = intval($userID); // Convert to integer to mitigate injection risk
-    $query = "";
+    $checkQuery = "SELECT type FROM nx_user_type WHERE pID = $userID";
+    $result = $conn->query($checkQuery);
+    $row = $result->fetch_assoc();
+    $currentType = $row['type'] ?? null;
 
-    if ($action === 'set_admin') {
-        // Insert user as admin (type = 2)
-        $query = "INSERT INTO nx_user_type (pID, type) VALUES ($userID, 2)
-                  ON DUPLICATE KEY UPDATE type = 2";
-    } elseif ($action === 'remove_admin') {
-        // Delete the user type entry
+    if ($action === 'set_admin' && $currentType !== '2') {
+        $query = "INSERT INTO nx_user_type (pID, type) VALUES ($userID, 2) ON DUPLICATE KEY UPDATE type = 2";
+    } elseif ($action === 'remove_admin' && $currentType !== '3') {
         $query = "DELETE FROM nx_user_type WHERE pID = $userID";
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Action not allowed.']);
+        exit;
     }
 
-    // Execute the query
     if ($conn->query($query) === TRUE) {
         echo json_encode(['success' => true, 'message' => 'Action completed successfully.']);
     } else {

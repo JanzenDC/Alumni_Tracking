@@ -2,16 +2,14 @@
 session_start();
 require_once '../../backend/db_connect.php';
 
-// Check if the user is logged in
 if (!isset($_SESSION['user'])) {
-    header('Location: ../../index.php'); // Redirect to login page if not logged in
+    header('Location: ../../index.php');
     exit;
 }
 
-// Access user data from the session
 $user = isset($_SESSION['user']) && is_array($_SESSION['user']) ? $_SESSION['user'] : [];
-
 $userId = $_SESSION['user']['id'];
+
 $sql = "SELECT position, department, hire_date FROM nx_employees WHERE pID = $userId";
 $result = mysqli_query($conn, $sql);
 
@@ -20,11 +18,15 @@ if ($result && mysqli_num_rows($result) > 0) {
     $employee = mysqli_fetch_assoc($result);
 }
 
-// Default values if no employee data exists
+$sqlUser = "SELECT graduation_date FROM nx_users WHERE pID = $userId";
+$resultUser = mysqli_query($conn, $sqlUser);
+$userData = mysqli_fetch_assoc($resultUser);
+
 $employee['position'] = $employee['position'] ?? '';
 $employee['department'] = $employee['department'] ?? '';
 $employee['hire_date'] = $employee['hire_date'] ?? '';
-// Update logic
+$userData['graduation_date'] = $userData['graduation_date'] ?? '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
@@ -44,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $position = trim($_POST['position']);
     $department = trim($_POST['department']);
     $hire_date = trim($_POST['hire_date']);
+    $graduation_date = trim($_POST['graduation_date']);
 
-    // Validate inputs
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['toastr_message'] = 'Invalid email format.';
         $_SESSION['toastr_type'] = 'error';
@@ -53,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['toastr_message'] = 'Passwords do not match.';
         $_SESSION['toastr_type'] = 'error';
     } else {
-        // Escape user inputs for security
         $username = mysqli_real_escape_string($conn, $username);
         $email = mysqli_real_escape_string($conn, $email);
         $fname = mysqli_real_escape_string($conn, $fname);
@@ -67,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $state = mysqli_real_escape_string($conn, $state);
         $zip_code = mysqli_real_escape_string($conn, $zip_code);
         $country = mysqli_real_escape_string($conn, $country);
+        $graduation_date = mysqli_real_escape_string($conn, $graduation_date);
 
-        // Update user information in the database
         $sql = "UPDATE nx_users 
                 SET username = '$username', 
                     email = '$email', 
@@ -81,23 +82,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     city = '$city', 
                     state = '$state', 
                     zip_code = '$zip_code', 
-                    country = '$country' 
+                    country = '$country', 
+                    graduation_date = '$graduation_date'
                 WHERE pID = $userId";
 
         if (mysqli_query($conn, $sql)) {
-            // If password is provided, update it too
             if (!empty($password)) {
                 $password_hash = password_hash($password, PASSWORD_BCRYPT);
                 $sqlPasswordUpdate = "UPDATE nx_users SET password_hash = '$password_hash' WHERE pID = $userId";
                 mysqli_query($conn, $sqlPasswordUpdate);
             }
 
-            // Update or insert employee details
             $sqlCheck = "SELECT * FROM nx_employees WHERE pID = $userId";
             $resultCheck = mysqli_query($conn, $sqlCheck);
 
             if (mysqli_num_rows($resultCheck) > 0) {
-                // Employee record exists, perform an update
                 $sqlUpdate = "UPDATE nx_employees 
                               SET position = '$position', 
                                   department = '$department', 
@@ -105,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               WHERE pID = $userId";
                 mysqli_query($conn, $sqlUpdate);
             } else {
-                // Employee record does not exist, perform an insert
                 $sqlInsert = "INSERT INTO nx_employees (pID, position, department, hire_date) 
                               VALUES ($userId, '$position', '$department', '$hire_date')";
                 mysqli_query($conn, $sqlInsert);
@@ -114,7 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['toastr_message'] = 'Settings updated successfully.';
             $_SESSION['toastr_type'] = 'success';
 
-            // Update session data
             $_SESSION['user'] = array_merge($_SESSION['user'], [
                 'username' => $username,
                 'email' => $email,
@@ -128,10 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'city' => $city,
                 'state' => $state,
                 'zip_code' => $zip_code,
-                'country' => $country
+                'country' => $country,
+                'graduation_date' => $graduation_date
             ]);
 
-            // Redirect to avoid form resubmission
             header('Location: settings.php');
             exit;
         } else {
@@ -141,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Close the database connection
 mysqli_close($conn);
 ?>
 
@@ -207,6 +203,11 @@ mysqli_close($conn);
             <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
             <input type="date" name="date_of_birth" class="mt-1 p-2 border rounded w-full" value="<?php echo htmlspecialchars($user['date_of_birth']); ?>">
         </div>
+        <div class="mb-4">
+            <label for="graduation_date" class="block text-sm font-medium text-gray-700">Graduation Date</label>
+            <input type="date" name="graduation_date" class="mt-1 p-2 border rounded w-full" value="<?php echo htmlspecialchars($userData['graduation_date']); ?>">
+        </div>
+
         <div class="flex justify-between">
             <button type="button" class="bg-gray-500 text-white rounded p-2 prev">Previous</button>
             <button type="button" class="bg-blue-500 text-white rounded p-2 next">Next</button>
