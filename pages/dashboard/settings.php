@@ -18,7 +18,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     $employee = mysqli_fetch_assoc($result);
 }
 
-$sqlUser = "SELECT graduation_date FROM nx_users WHERE pID = $userId";
+$sqlUser = "SELECT graduation_date, college_graduate, college_department FROM nx_users WHERE pID = $userId";
 $resultUser = mysqli_query($conn, $sqlUser);
 $userData = mysqli_fetch_assoc($resultUser);
 
@@ -26,6 +26,8 @@ $employee['position'] = $employee['position'] ?? '';
 $employee['department'] = $employee['department'] ?? '';
 $employee['hire_date'] = $employee['hire_date'] ?? '';
 $userData['graduation_date'] = $userData['graduation_date'] ?? '';
+$userData['college_graduate'] = $userData['college_graduate'] ?? '';
+$userData['college_department'] = $userData['college_department'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
@@ -47,6 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $department = trim($_POST['department']);
     $hire_date = trim($_POST['hire_date']);
     $graduation_date = trim($_POST['graduation_date']);
+    $college_graduate = isset($_POST['college_graduate']) ? 1 : 0;
+    $college_department = trim($_POST['college_department']);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['toastr_message'] = 'Invalid email format.';
@@ -69,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $zip_code = mysqli_real_escape_string($conn, $zip_code);
         $country = mysqli_real_escape_string($conn, $country);
         $graduation_date = mysqli_real_escape_string($conn, $graduation_date);
+        $college_department = mysqli_real_escape_string($conn, $college_department);
 
         $sql = "UPDATE nx_users 
                 SET username = '$username', 
@@ -83,7 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     state = '$state', 
                     zip_code = '$zip_code', 
                     country = '$country', 
-                    graduation_date = '$graduation_date'
+                    graduation_date = '$graduation_date',
+                    college_graduate = $college_graduate,
+                    college_department = '$college_department'
                 WHERE pID = $userId";
 
         if (mysqli_query($conn, $sql)) {
@@ -126,7 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'state' => $state,
                 'zip_code' => $zip_code,
                 'country' => $country,
-                'graduation_date' => $graduation_date
+                'graduation_date' => $graduation_date,
+                'college_graduate' => $college_graduate,
+                'college_department' => $college_department
             ]);
 
             header('Location: settings.php');
@@ -207,6 +216,25 @@ mysqli_close($conn);
             <label for="graduation_date" class="block text-sm font-medium text-gray-700">Graduation Date</label>
             <input type="date" name="graduation_date" class="mt-1 p-2 border rounded w-full" value="<?php echo htmlspecialchars($userData['graduation_date']); ?>">
         </div>
+        <div class="mb-4">
+            <label class="flex items-center">
+                <input type="checkbox" name="college_graduate" class="mr-2" value="1" <?php echo (!empty($userData['college_graduate'])) ? 'checked' : ''; ?>>
+                <span class="text-sm font-medium text-gray-700">College Graduate</span>
+            </label>
+        </div>
+        <div class="mb-4">
+            <label for="college_department" class="block text-sm font-medium text-gray-700">College Department</label>
+            <select name="college_department" id="college_department" class="mt-1 p-2 border rounded w-full">
+                <option value="cbea" <?php echo ($userData['college_department'] == 'cbea') ? 'selected' : ''; ?>>College of Business and Accountancy</option>
+                <option value="cas" <?php echo ($userData['college_department'] == 'cas') ? 'selected' : ''; ?>>College of Science</option>
+                <option value="CEng" <?php echo ($userData['college_department'] == 'CEng') ? 'selected' : ''; ?>>College of Engineering</option>
+                <option value="Ced" <?php echo ($userData['college_department'] == 'Ced') ? 'selected' : ''; ?>>College of Education</option>
+                <option value="IA" <?php echo ($userData['college_department'] == 'IA') ? 'selected' : ''; ?>>Institute of Architecture</option>
+                <option value="Ics" <?php echo ($userData['college_department'] == 'Ics') ? 'selected' : ''; ?>>Institute of Computer Studies</option>
+                <option value="ihk" <?php echo ($userData['college_department'] == 'ihk') ? 'selected' : ''; ?>>Institute of Human Kinetics</option>
+            </select>
+        </div>
+
 
         <div class="flex justify-between">
             <button type="button" class="bg-gray-500 text-white rounded p-2 prev">Previous</button>

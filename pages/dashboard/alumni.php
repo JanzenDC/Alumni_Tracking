@@ -151,26 +151,28 @@ $result = mysqli_query($conn, $query);
         <div class="flex-1 p-4 md:p-6 overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6">ALUMNI DASHBOARD</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="dashboard-card admin">
-                    <span><i class="fas fa-user-shield"></i> Admins</span>
-                    <span><?php echo $adminCount; ?></span>
+            <?php if ($isAdmin || $isSuperAdmin) { ?>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="dashboard-card admin">
+                        <span><i class="fas fa-user-shield"></i> Admins</span>
+                        <span><?php echo $adminCount; ?></span>
+                    </div>
+                    <div class="dashboard-card alumni">
+                        <span><i class="fas fa-users"></i> Registered Alumni</span>
+                        <span><?php echo $alumniCount; ?></span>
+                    </div>
                 </div>
-                <div class="dashboard-card alumni">
-                    <span><i class="fas fa-users"></i> Registered Alumni</span>
-                    <span><?php echo $alumniCount; ?></span>
-                </div>
-            </div>
 
-            <div class="bg-white shadow-md rounded-lg p-4 mb-4">
-                <div class="chart-type-buttons">
-                    <button onclick="switchChartType('batch')" class="active" id="batchChartBtn">Batch Distribution</button>
-                    <button onclick="switchChartType('userType')" id="userTypeChartBtn">User Type Distribution</button>
+                <div class="bg-white shadow-md rounded-lg p-4 mb-4">
+                    <div class="chart-type-buttons">
+                        <button onclick="switchChartType('batch')" class="active" id="batchChartBtn">Batch Distribution</button>
+                        <button onclick="switchChartType('userType')" id="userTypeChartBtn">User Type Distribution</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="dashboardChart"></canvas>
-                </div>
-            </div>
+            <?php } ?>
 
             <div class="bg-white shadow-md rounded-lg p-4">
                 <table id="alumniTable" class="display responsive nowrap" style="width:100%">

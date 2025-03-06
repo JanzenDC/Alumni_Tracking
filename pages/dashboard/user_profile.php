@@ -86,6 +86,19 @@ if (!$isOwnProfile) {
 }
 
 mysqli_close($conn);
+function getDepartmentName($code) {
+    $departments = [
+        'cbea' => 'College of Business and Accountancy',
+        'cas' => 'College of Science',
+        'CEng' => 'College of Engineering',
+        'Ced' => 'College of Education',
+        'IA' => 'Institute of Architecture',
+        'Ics' => 'Institute of Computer Studies',
+        'ihk' => 'Institute of Human Kinetics'
+    ];
+    
+    return isset($departments[$code]) ? $departments[$code] : $code;
+}
 ?>
 
 <!DOCTYPE html>
@@ -170,7 +183,7 @@ mysqli_close($conn);
                             <button class="tab-button px-4 py-3 font-semibold text-blue-600 border-b-2 border-blue-600" data-tab="timeline">Timeline</button>
                             <button class="tab-button px-4 py-3 text-gray-600 hover:bg-gray-100" data-tab="about">About</button>
                             <button class="tab-button px-4 py-3 text-gray-600 hover:bg-gray-100" data-tab="friends">Friends</button>
-                            <button class="tab-button px-4 py-3 text-gray-600 hover:bg-gray-100" data-tab="photos">Photos</button>
+                            <!-- <button class="tab-button px-4 py-3 text-gray-600 hover:bg-gray-100" data-tab="photos">Photos</button> -->
                         </nav>
                     </div>
                 </div>
@@ -242,10 +255,10 @@ mysqli_close($conn);
 
                                     <p><strong>Bio:</strong> <?= !empty($userDetails['bio']) ? nl2br(htmlspecialchars($userDetails['bio'])) : 'No information available.' ?></p>
                                     <p><strong>Position:</strong> <?= !empty($userDetails['position']) ? htmlspecialchars($userDetails['position']) : 'No information available.' ?></p>
-                                    <p><strong>Department:</strong> <?= !empty($userDetails['department']) ? htmlspecialchars($userDetails['department']) : 'No information available.' ?></p>
-                                    
+                                    <p><strong>College Graduate:</strong> <?= isset($userDetails['college_graduate']) ? ($userDetails['college_graduate'] == 1 ? 'Yes' : 'No') : 'No information available.' ?></p>
+                                    <p><strong>Department:</strong> <?= !empty($userDetails['college_department']) ? htmlspecialchars(getDepartmentName($userDetails['college_department'])) : 'No information available.' ?></p>
+                                    <p><strong>Graduation Date:</strong> <?= !empty($userDetails['graduation_date']) ? htmlspecialchars($userDetails['graduation_date']) : 'No information available.' ?></p>
                                     <p><strong>Batch:</strong> <?= !empty($userDetails['batch_name']) ? htmlspecialchars($userDetails['batch_name']) : 'No information available.' ?></p>
-                                    <p><strong>Graduation Date:</strong> <?= !empty($userDetails['batch_date']) ? htmlspecialchars(date('F j, Y', strtotime($userDetails['batch_date']))) : 'No information available.' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -280,13 +293,13 @@ mysqli_close($conn);
 
 
                     <!-- Photos Tab -->
-                    <div id="photos" class="tab-content">
+                    <!-- <div id="photos" class="tab-content">
                         <div class="bg-white shadow rounded-lg p-4">
                             <h2 class="text-2xl font-semibold mb-4">Photos</h2>
-                            <!-- Add a grid of photos here -->
+                           
                             <p class="text-gray-600">No photos to display.</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -295,6 +308,7 @@ mysqli_close($conn);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
 var userID = <?= $userID ?>;
+
 $(document).ready(function () {
     $('#profilePictureInput').on('change', function (event) {
         const file = event.target.files[0];
