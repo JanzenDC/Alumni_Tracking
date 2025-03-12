@@ -217,7 +217,11 @@ $result = mysqli_query($conn, $query);
                                 <td><?php echo isset($row['is_active']) && $row['is_active'] ? 'Yes' : 'No'; ?></td>
                                 <td><?php echo $row['joined_at']; ?></td>
                                 <td>
-                                    <?php if ($isAdmin || $isSuperAdmin) { ?>
+                                    <a href="../../pages/dashboard/user_profile.php?id=<?php echo $row['pID']; ?>" 
+                                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                    View Profile
+                                    </a>
+                                <?php if ($isAdmin || $isSuperAdmin) { ?>
                                         <?php if (!isset($row['type']) || $row['type'] != 2) { ?>
                                             <button onclick="setAdmin(<?php echo $row['pID']; ?>)" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Make Admin</button>
                                         <?php } else { ?>
