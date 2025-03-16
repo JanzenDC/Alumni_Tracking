@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2025 at 01:43 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Mar 16, 2025 at 11:36 AM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `college_departments`
+--
+
+CREATE TABLE `college_departments` (
+  `dept_id` int(10) UNSIGNED NOT NULL,
+  `dept_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `nx_batches`
 --
 
@@ -36,7 +50,7 @@ CREATE TABLE `nx_batches` (
   `description` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_batches`
@@ -61,14 +75,15 @@ CREATE TABLE `nx_employees` (
   `department` varchar(100) DEFAULT NULL,
   `hire_date` date DEFAULT NULL,
   `status` tinyint(4) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_employees`
 --
 
 INSERT INTO `nx_employees` (`employeeID`, `pID`, `position`, `department`, `hire_date`, `status`) VALUES
-(3, 1, 'tst', '', '0000-00-00', 1);
+(3, 1, 'tst', '', '0000-00-00', 1),
+(4, 7, '', '', '0000-00-00', 1);
 
 -- --------------------------------------------------------
 
@@ -84,7 +99,7 @@ CREATE TABLE `nx_events` (
   `created_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_events`
@@ -106,7 +121,7 @@ CREATE TABLE `nx_friends` (
   `userID2` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` tinyint(4) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_friends`
@@ -127,7 +142,7 @@ CREATE TABLE `nx_job_interests` (
   `pID` int(11) NOT NULL,
   `jobID` int(11) NOT NULL,
   `expressed_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -142,7 +157,7 @@ CREATE TABLE `nx_job_postings` (
   `posted_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_job_postings`
@@ -172,7 +187,7 @@ CREATE TABLE `nx_logs` (
   `target_id` int(11) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `remark` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_logs`
@@ -208,22 +223,25 @@ CREATE TABLE `nx_users` (
   `state` varchar(50) DEFAULT NULL,
   `zip_code` varchar(10) DEFAULT NULL,
   `country` varchar(50) DEFAULT NULL,
+  `graduation_date` varchar(255) NOT NULL,
   `remark` tinyint(4) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `college_department` varchar(255) DEFAULT NULL,
+  `college_graduate` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_users`
 --
 
-INSERT INTO `nx_users` (`pID`, `username`, `email`, `password_hash`, `fname`, `mname`, `lname`, `date_of_birth`, `profile_picture`, `bio`, `phone_number`, `address`, `city`, `state`, `zip_code`, `country`, `remark`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'Admin@gmail.com', '$2y$10$.f35T9htYo.hAf4zuslcyuN9XIW.8S0GP2tLfmaanC2fOi78t1ZQC', 'Admin', 'Admin', 'Admin', '2024-10-10', '670881e5de7d8.png', 'Admin', '09123456789', 'tests', 'test', 'test', '4500', 'test', 1, '2024-10-09 19:17:56', '2024-10-11 04:21:57'),
-(2, 'user1', 'user1@example.com', 'hashed_password_1', 'First', NULL, 'User', '1990-01-01', '', 'Bio for user 1', '1234567890', 'Address 1', 'City1', 'State1', '12345', 'Country1', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:45'),
-(3, 'user2', 'user2@example.com', 'hashed_password_2', 'Second', NULL, 'User', '1992-02-02', '', 'Bio for user 2', '1234567891', 'Address 2', 'City2', 'State2', '12346', 'Country2', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:53'),
-(4, 'user3', 'user3@example.com', 'hashed_password_3', 'Third', NULL, 'User', '1994-03-03', '', 'Bio for user 3', '1234567892', 'Address 3', 'City3', 'State3', '12347', 'Country3', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:58'),
-(5, 'user4', 'user4@example.com', 'hashed_password_4', 'Fourth', NULL, 'User', '1996-04-04', '', 'Bio for user 4', '1234567893', 'Address 4', 'City4', 'State4', '12348', 'Country4', 1, '2024-10-09 23:56:39', '2024-10-09 23:58:00'),
-(6, 'user5', 'user5@example.com', 'hashed_password_5', 'Fifth', NULL, 'User', '1998-05-05', '', 'Bio for user 5', '1234567894', 'Address 5', 'City5', 'State5', '12349', 'Country5', 1, '2024-10-09 23:56:39', '2024-10-09 23:58:01');
+INSERT INTO `nx_users` (`pID`, `username`, `email`, `password_hash`, `fname`, `mname`, `lname`, `date_of_birth`, `profile_picture`, `bio`, `phone_number`, `address`, `city`, `state`, `zip_code`, `country`, `graduation_date`, `remark`, `created_at`, `updated_at`, `college_department`, `college_graduate`) VALUES
+(2, 'user1', 'user1@example.com', 'hashed_password_1', 'First', NULL, 'User', '1990-01-01', '', 'Bio for user 1', '1234567890', 'Address 1', 'City1', 'State1', '12345', 'Country1', '', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:45', NULL, ''),
+(3, 'user2', 'user2@example.com', 'hashed_password_2', 'Second', NULL, 'User', '1992-02-02', '', 'Bio for user 2', '1234567891', 'Address 2', 'City2', 'State2', '12346', 'Country2', '', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:53', NULL, ''),
+(4, 'user3', 'user3@example.com', 'hashed_password_3', 'Third', NULL, 'User', '1994-03-03', '', 'Bio for user 3', '1234567892', 'Address 3', 'City3', 'State3', '12347', 'Country3', '', 1, '2024-10-09 23:56:39', '2024-10-09 23:57:58', NULL, ''),
+(5, 'user4', 'user4@example.com', 'hashed_password_4', 'Fourth', NULL, 'User', '1996-04-04', '', 'Bio for user 4', '1234567893', 'Address 4', 'City4', 'State4', '12348', 'Country4', '', 1, '2024-10-09 23:56:39', '2024-10-09 23:58:00', NULL, ''),
+(6, 'user5', 'user5@example.com', 'hashed_password_5', 'Fifth', NULL, 'User', '1998-05-05', '', 'Bio for user 5', '1234567894', 'Address 5', 'City5', 'State5', '12349', 'Country5', '', 1, '2024-10-09 23:56:39', '2024-10-09 23:58:01', NULL, ''),
+(8, 'Admin', 'Admin@gmail.com', '$2y$10$yR8qHLm0yCTrYQDvFpCLEOKfEs88O9f.rM6EV/SFYvMq/4epx9BJG', 'Admin', 'Admin', 'Admin', '2025-03-06', NULL, '', '09123456789', '', '', '', '', '', '', 1, '2025-03-06 07:27:42', '2025-03-16 10:32:28', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -237,14 +255,15 @@ CREATE TABLE `nx_user_batches` (
   `batchID` int(11) NOT NULL,
   `is_active` int(1) DEFAULT 0,
   `joined_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_user_batches`
 --
 
 INSERT INTO `nx_user_batches` (`user_batchID`, `pID`, `batchID`, `is_active`, `joined_at`) VALUES
-(1, 1, 1, 1, '2024-10-11 01:15:21');
+(11, 1, 3, 1, '2025-03-05 14:10:31'),
+(13, 8, 3, 1, '2025-03-11 12:11:30');
 
 -- --------------------------------------------------------
 
@@ -258,7 +277,7 @@ CREATE TABLE `nx_user_type` (
   `type` varchar(255) DEFAULT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp(),
   `remark` tinyint(4) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `nx_user_type`
@@ -266,11 +285,21 @@ CREATE TABLE `nx_user_type` (
 
 INSERT INTO `nx_user_type` (`tID`, `pID`, `type`, `date`, `remark`) VALUES
 (1, 1, '3', '2024-10-10 00:23:11', 1),
-(3, 3, '2', '2024-10-13 00:10:23', 1);
+(6, 1, '2', '2025-03-05 13:18:48', 1),
+(7, 1, '2', '2025-03-05 13:18:52', 1),
+(8, 1, '2', '2025-03-05 14:01:36', 1),
+(10, 7, '1', '2025-03-06 05:52:49', 1),
+(11, 8, '3', '2025-03-06 07:27:42', 1);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `college_departments`
+--
+ALTER TABLE `college_departments`
+  ADD PRIMARY KEY (`dept_id`);
 
 --
 -- Indexes for table `nx_batches`
@@ -341,6 +370,12 @@ ALTER TABLE `nx_user_type`
 --
 
 --
+-- AUTO_INCREMENT for table `college_departments`
+--
+ALTER TABLE `college_departments`
+  MODIFY `dept_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `nx_batches`
 --
 ALTER TABLE `nx_batches`
@@ -350,7 +385,7 @@ ALTER TABLE `nx_batches`
 -- AUTO_INCREMENT for table `nx_employees`
 --
 ALTER TABLE `nx_employees`
-  MODIFY `employeeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `employeeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `nx_events`
@@ -386,19 +421,19 @@ ALTER TABLE `nx_logs`
 -- AUTO_INCREMENT for table `nx_users`
 --
 ALTER TABLE `nx_users`
-  MODIFY `pID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `pID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `nx_user_batches`
 --
 ALTER TABLE `nx_user_batches`
-  MODIFY `user_batchID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `user_batchID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `nx_user_type`
 --
 ALTER TABLE `nx_user_type`
-  MODIFY `tID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `tID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
