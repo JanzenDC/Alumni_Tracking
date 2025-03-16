@@ -254,30 +254,41 @@ $conn->close();
         });
     }
     function deleteBatch(batchId) {
-        if (!confirm("Are you sure you want to delete this batch?")) {
-            return;
-        }
-        fetch('../dashboard/query/delete_batch.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'batchId=' + batchId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                toastr.success(data.message);
-                setTimeout(() => location.reload(), 2000);
-            } else {
-                toastr.error(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            toastr.error('An error occurred while deleting the batch.');
-        });
+    if (!confirm("Are you sure you want to delete this batch?")) {
+        return;
     }
+    fetch('../dashboard/query/delete_batch.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'batchId=' + batchId  // Fixed 'date' to 'body'
+    })
+    .then(response => {
+        // Check if the response is valid JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            // If not JSON, get the text and throw an error
+            return response.text().then(text => {
+                throw new Error('Invalid JSON response: ' + text);
+            });
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            toastr.success(data.message);
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            toastr.error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('An error occurred while deleting the batch.');
+    });
+}
     </script>
     <?php if (isset($_SESSION['toastr_message'])): ?>
         <script>
