@@ -46,6 +46,16 @@ $user = $_SESSION['user'];
             </a>
         </li>
         <li>
+            <a href="../../pages/dashboard/feedback.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
+            <i class="fas fa-comments mr-2"></i> Feedback
+            </a>
+        </li>
+        <li>
+            <a href="../../pages/dashboard/manage_feedback.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
+            <i class="fas fa-comments mr-2"></i>Manage Feedback
+            </a>
+        </li>
+        <li>
             <a href="../../pages/dashboard/settings.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
                 <i class="fas fa-cog mr-2"></i> Settings
             </a>
