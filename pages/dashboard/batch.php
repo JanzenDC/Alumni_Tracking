@@ -90,6 +90,9 @@ $conn->close();
                                             Delete Batch
                                         </button>
                                     <?php endif; ?>
+                                    <button onclick="showBatchMembers(<?php echo $batch['batchID']; ?>)" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300">
+                                        View Members
+                                    </button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -190,7 +193,44 @@ $conn->close();
             </form>
         </div>
     </div>
+
+    <div id="batchMembersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
+            <h2 class="text-2xl font-semibold mb-4">Batch Members</h2>
+            <div id="batchMembersList" class="mb-4">
+                <p>Loading...</p>
+            </div>
+            <button onclick="closeBatchMembersModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">Close</button>
+        </div>
+    </div>
     <script>
+    function showBatchMembers(batchId) {
+        document.getElementById('batchMembersModal').classList.remove('hidden');
+        document.getElementById('batchMembersList').innerHTML = "<p>Loading...</p>";
+
+        fetch(`get_batch_members.php?batchId=${batchId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let membersHTML = "<ul class='list-disc pl-5'>";
+                data.members.forEach(member => {
+                    membersHTML += `<li class='py-1'>${member.name} (${member.email})</li>`;
+                });
+                membersHTML += "</ul>";
+                document.getElementById('batchMembersList').innerHTML = membersHTML;
+            } else {
+                document.getElementById('batchMembersList').innerHTML = "<p>No members found.</p>";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('batchMembersList').innerHTML = "<p>Error loading members.</p>";
+        });
+    }
+
+    function closeBatchMembersModal() {
+        document.getElementById('batchMembersModal').classList.add('hidden');
+    }
     function openModal() {
         document.getElementById('createBatchModal').classList.remove('hidden');
     }
@@ -200,11 +240,23 @@ $conn->close();
     function createBatch(event) {
         event.preventDefault();
         const formData = new FormData(document.getElementById('createBatchForm'));
-        fetch('create_batch.php', {
+        fetch('../dashboard/query/create_batch.php', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // First try to get response as text
+            return response.text().then(text => {
+                try {
+                    // Try to parse as JSON
+                    return JSON.parse(text);
+                } catch (e) {
+                    // If parsing fails, throw error with the raw response text
+                    console.error('Raw response:', text);
+                    throw new Error('Invalid JSON response: ' + text);
+                }
+            });
+        })
         .then(data => {
             if (data.success) {
                 Swal.fire({
@@ -227,7 +279,7 @@ $conn->close();
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'An error occurred while creating the batch.'
+                text: 'An error occurred while creating the batch. ' + error.message
             });
         });
     }

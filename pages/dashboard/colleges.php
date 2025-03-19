@@ -334,6 +334,11 @@ $conn->close();
                       Delete
                     </button>
                   <?php endif; ?>
+                  <button onclick="showDepartmentMembers(<?php echo $dept['dept_id']; ?>, '<?php echo addslashes(htmlspecialchars($dept['dept_name'])); ?>')" 
+        class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 ml-2">
+                      View Members
+                  </button>
+
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -346,7 +351,16 @@ $conn->close();
       </table>
     </div>
   </div>
-  
+  <div id="deptMembersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div class="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
+          <h2 id="deptModalTitle" class="text-2xl font-semibold mb-4">Department Members</h2>
+          <div id="deptMembersList" class="mb-4">
+              <p>Loading...</p>
+          </div>
+          <button onclick="closeDeptMembersModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">Close</button>
+      </div>
+  </div>
+
   <!-- Create Department Modal -->
   <div id="createModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
     <div class="bg-white rounded-lg shadow-lg p-6 w-1/3">
@@ -392,6 +406,34 @@ $conn->close();
   
   <!-- JavaScript -->
   <script>
+    function showDepartmentMembers(deptId, deptName) {
+        document.getElementById('deptMembersModal').classList.remove('hidden');
+        document.getElementById('deptModalTitle').textContent = "Members of " + deptName;
+        document.getElementById('deptMembersList').innerHTML = "<p>Loading...</p>";
+
+        fetch(`get_department_members.php?dept_id=${deptId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let membersHTML = "<ul class='list-disc pl-5'>";
+                data.members.forEach(member => {
+                    membersHTML += `<li class='py-1'>${member.name} (${member.email})</li>`;
+                });
+                membersHTML += "</ul>";
+                document.getElementById('deptMembersList').innerHTML = membersHTML;
+            } else {
+                document.getElementById('deptMembersList').innerHTML = "<p>No members found.</p>";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('deptMembersList').innerHTML = "<p>Error loading members.</p>";
+        });
+    }
+
+    function closeDeptMembersModal() {
+        document.getElementById('deptMembersModal').classList.add('hidden');
+    }
     function joinDepartment(deptId, deptName) {
       if (confirm("Are you sure you want to join the " + deptName + " department?")) {
         const formData = new FormData();

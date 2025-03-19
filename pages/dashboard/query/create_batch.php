@@ -1,6 +1,13 @@
 <?php
 session_start();
-require_once '../../backend/db_connect.php';
+require '../../../backend/db_connect.php';
+
+// Enable detailed error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Set JSON header to ensure proper JSON response
+header('Content-Type: application/json');
 
 // Check if the user is logged in
 if (!isset($_SESSION['user'])) {
@@ -8,56 +15,73 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Access user data from the session
 $user = $_SESSION['user'];
 $userId = $user['id'];
 
 // Check if form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate inputs
-    $batch_name = $_POST['batch_name'] ?? '';
-    $batch_date = $_POST['batch_date'] ?? '';
-    $profile = $_POST['profile'] ?? '';
-    $description = $_POST['description'] ?? '';
-
-    // Handle file upload
-    if (isset($_FILES['cover_photo']) && $_FILES['cover_photo']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['cover_photo']['tmp_name'];
-        $fileName = $_FILES['cover_photo']['name'];
-        $fileSize = $_FILES['cover_photo']['size'];
-        $fileType = $_FILES['cover_photo']['type'];
-
-        // Specify the upload directory
-        $uploadFileDir = '../../images/batch_group_images/';
-        $dest_path = $uploadFileDir . basename($fileName);
-
-        // Check if the file is an image (optional)
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($fileType, $allowedTypes)) {
-            echo json_encode(['success' => false, 'message' => 'Invalid file type.']);
-            exit;
-        }
-
-        // Move the file to the upload directory
-        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-            // Insert into database
-            $sql = "INSERT INTO nx_batches (batch_name, batch_date, profile, cover_photo, description, created_at, updated_at)
-                    VALUES ('$batch_name', '$batch_date', '$profile', '$fileName', '$description', NOW(), NOW())";
-
-            if ($conn->query($sql) === TRUE) {
-                echo json_encode(['success' => true, 'message' => 'Batch created successfully!']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
-            }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'File upload failed.']);
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'No file uploaded or error occurred.']);
-    }
-} else {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+    exit;
 }
 
+// Validate inputs
+$batch_name = $_POST['batch_name'] ?? '';
+$batch_date = $_POST['batch_date'] ?? '';
+$profile = $_POST['profile'] ?? '';
+$description = $_POST['description'] ?? '';
+
+// Check for empty fields
+if (empty($batch_name) || empty($batch_date) || empty($profile)) {
+    echo json_encode(['success' => false, 'message' => 'Please fill in all required fields.']);
+    exit;
+}
+
+// Handle file upload
+$fileName = '';
+if (isset($_FILES['cover_photo']) && $_FILES['cover_photo']['error'] === UPLOAD_ERR_OK) {
+    $fileTmpPath = $_FILES['cover_photo']['tmp_name'];
+    $fileName = basename($_FILES['cover_photo']['name']);
+    $fileSize = $_FILES['cover_photo']['size'];
+    $fileType = $_FILES['cover_photo']['type'];
+
+    // Specify the upload directory
+    $uploadFileDir = '../../../images/batch_group_images/';
+    $dest_path = $uploadFileDir . $fileName;
+
+    // Check if the file is an image
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($fileType, $allowedTypes)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid file type. Only JPG, PNG, and GIF are allowed.']);
+        exit;
+    }
+
+    // Move the file to the upload directory
+    if (!move_uploaded_file($fileTmpPath, $dest_path)) {
+        echo json_encode(['success' => false, 'message' => 'File upload failed.']);
+        exit;
+    }
+}
+
+// Insert into database using prepared statements
+$sql = "INSERT INTO nx_batches (batch_name, batch_date, profile, cover_photo, description, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
+    exit;
+}
+
+// Bind parameters to prevent SQL injection
+$stmt->bind_param("sssss", $batch_name, $batch_date, $profile, $fileName, $description);
+
+if ($stmt->execute()) {
+    echo json_encode(['success' => true, 'message' => 'Batch created successfully!']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $stmt->error]);
+}
+
+// Close statement and connection
+$stmt->close();
 $conn->close();
 ?>
