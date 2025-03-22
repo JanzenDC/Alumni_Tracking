@@ -4,6 +4,8 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 $user = $_SESSION['user'];
+$isAdmin = $user['user_type'] === '2' || $user['user_type'] === '3';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,11 +52,13 @@ $user = $_SESSION['user'];
             <i class="fas fa-comments mr-2"></i> Feedback
             </a>
         </li>
-        <li>
-            <a href="../../pages/dashboard/manage_feedback.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
-            <i class="fas fa-comments mr-2"></i>Manage Feedback
-            </a>
-        </li>
+        <?php if ($isAdmin): ?>
+            <li>
+                <a href="../../pages/dashboard/manage_feedback.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
+                    <i class="fas fa-comments mr-2"></i> Manage Feedback
+                </a>
+            </li>
+        <?php endif; ?>
         <li>
             <a href="../../pages/dashboard/settings.php" class="block py-2 px-4 hover:bg-[#df7c0b] hover:scale-105 transition-transform">
                 <i class="fas fa-cog mr-2"></i> Settings
