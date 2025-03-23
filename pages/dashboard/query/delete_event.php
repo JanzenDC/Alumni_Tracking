@@ -20,7 +20,9 @@ if ($eventId) {
 
     // Execute the delete query
     if ($conn->query($sql) === TRUE) {
-        echo json_encode(['success' => true, 'message' => 'Event deleted successfully.']);
+        $_SESSION['message'] = 'Event deleted successfully.';
+        header('Location: ../dashboard.php');
+        exit;
     } else {
         echo json_encode(['success' => false, 'message' => 'Error deleting event: ' . $conn->error]);
     }

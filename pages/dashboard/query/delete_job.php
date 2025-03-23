@@ -3,10 +3,11 @@ session_start();
 require '../../../backend/db_connect.php';
 
 // Check if the user is logged in and is an admin
-if (!isset($_SESSION['user']) || $_SESSION['user']['user_type'] !== '2') {
+if (!isset($_SESSION['user']) && $_SESSION['user']['user_type'] > 2) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
 }
+
 
 // Get job ID from POST request
 $data = json_decode(file_get_contents("php://input"), true);

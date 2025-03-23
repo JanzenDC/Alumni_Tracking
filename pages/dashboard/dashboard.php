@@ -288,7 +288,7 @@ $conn->close();
 
             if (result.isConfirmed) {
                 // For actual deletion, do something like:
-                // form.submit();
+                form.submit();
                 Swal.fire({
                     icon: 'success',
                     title: '<i class="fas fa-check-circle"></i> Success!',
