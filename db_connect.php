@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost'; 
-$username = 'root'; 
-$password = '';
-$database = 'alumni_tracking'; 
+$username = 'u607308985_alumnirtu'; 
+$password = '5|j[jqL8]gKV';
+$database = 'u607308985_alumnirtu'; 
 
 
 $conn = new mysqli($host, $username, $password, $database);

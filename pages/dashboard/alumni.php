@@ -141,6 +141,23 @@ $result = mysqli_query($conn, $query);
         .chart-type-buttons button.active {
             background-color: #2c3e50;
         }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 <body class="bg-gray-100 overflow-hidden">
@@ -217,17 +234,25 @@ $result = mysqli_query($conn, $query);
                                 <td><?php echo isset($row['is_active']) && $row['is_active'] ? 'Yes' : 'No'; ?></td>
                                 <td><?php echo $row['joined_at']; ?></td>
                                 <td>
-                                    <a href="../../pages/dashboard/user_profile.php?id=<?php echo $row['pID']; ?>" 
-                                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                                    View Profile
-                                    </a>
-                                <?php if ($isAdmin || $isSuperAdmin) { ?>
+                                    <div class="action-buttons">
+                                        <a href="../../pages/dashboard/user_profile.php?id=<?php echo $row['pID']; ?>" 
+                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                        View Profile
+                                        </a>
+                                    <?php if ($isAdmin || $isSuperAdmin) { ?>
                                         <?php if (!isset($row['type']) || $row['type'] != 2) { ?>
                                             <button onclick="setAdmin(<?php echo $row['pID']; ?>)" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Make Admin</button>
                                         <?php } else { ?>
                                             <button onclick="removeAdmin(<?php echo $row['pID']; ?>)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Remove Admin</button>
                                         <?php } ?>
+                                        
+                                        <?php if (!isset($row['type']) || (int)$row['type'] !== 3) { // Don't allow removing super admins ?>
+                                            <button onclick="removeAlumni(<?php echo $row['pID']; ?>)" class="delete-btn">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        <?php } ?>
                                     <?php } ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -382,6 +407,37 @@ $result = mysqli_query($conn, $query);
                         } else {
                             Swal.fire('Error!', data.message, 'error');
                         }
+                    });
+                }
+            });
+        }
+
+        function removeAlumni(userID) {
+            Swal.fire({
+                title: 'Remove Alumni',
+                text: "Are you sure you want to remove this alumni? This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, remove alumni!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('../dashboard/query/delete_action.php', {
+                        method: 'POST',
+                        body: JSON.stringify({ userID: userID, action: 'remove_alumni' }),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Removed!', 'The alumni has been removed successfully.', 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message || 'An error occurred while removing the alumni.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error!', 'A connection error occurred. Please try again.', 'error');
                     });
                 }
             });
