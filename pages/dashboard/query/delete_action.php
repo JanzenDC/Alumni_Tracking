@@ -1,4 +1,5 @@
 <?php
+session_start();
 require '../../../backend/db_connect.php';
 
 // Get the request body for JSON input or use POST for form submissions
