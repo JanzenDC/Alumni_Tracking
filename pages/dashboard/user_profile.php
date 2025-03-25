@@ -217,7 +217,7 @@ function getDepartmentName($code) {
                                         <?php foreach ($logs as $log): ?>
                                             <div class="mb-2">
                                                 <p class="text-gray-800"><?php echo htmlspecialchars($log['action']); ?></p>
-                                                <p class="text-gray-600"><?php echo htmlspecialchars($log['timestamp']); ?></p>
+                                                <p class="text-gray-600"><?php echo date('Y-m-d H:i:s', strtotime($log['timestamp'])); ?></p>
                                                 <?php if ($log['remark']): ?>
                                                     <p class="text-gray-500 italic"><?php echo htmlspecialchars($log['remark']); ?></p>
                                                 <?php endif; ?>

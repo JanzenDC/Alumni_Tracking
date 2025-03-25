@@ -8,6 +8,8 @@ if (!isset($_SESSION['user'])) {
 $user = $_SESSION['user'];
 $userId = $user['id'];
 $type = $user['user_type'];
+$isAdmin = ($user['user_type'] == '2');
+$isSuperAdmin = ($user['user_type'] == '3');
 $limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
@@ -90,9 +92,11 @@ $conn->close();
                                             Delete Batch
                                         </button>
                                     <?php endif; ?>
-                                    <button onclick="showBatchMembers(<?php echo $batch['batchID']; ?>)" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300">
-                                        View Members
-                                    </button>
+                                    <?php if ($type == 2 || $type == 3): ?>
+                                        <button onclick="showBatchMembers(<?php echo $batch['batchID']; ?>)" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300">
+                                            View Members
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

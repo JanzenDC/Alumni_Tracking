@@ -129,52 +129,52 @@ $conn->close();
                     <i class="fas fa-calendar-alt text-blue-500"></i> List of Events
                 </h2>
                 <div class="mt-3 p-5">
-    <?php if (count($events) > 0): ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php 
-            $pastelColors = ['bg-pastel-blue', 'bg-pastel-green', 'bg-pastel-yellow', 'bg-pastel-pink', 'bg-pastel-purple'];
-            $colorIndex = 0;
-            ?>
-            <?php foreach ($events as $event): 
-                $date = new DateTime($event['event_date']);
-                $formattedDate = $date->format('l, F j, Y \a\t g:i A');
-                $currentColor = $pastelColors[$colorIndex % count($pastelColors)]; 
-                $colorIndex++;
+                    <?php if (count($events) > 0): ?>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <?php 
+                            $pastelColors = ['bg-pastel-blue', 'bg-pastel-green', 'bg-pastel-yellow', 'bg-pastel-pink', 'bg-pastel-purple'];
+                            $colorIndex = 0;
+                            ?>
+                            <?php foreach ($events as $event): 
+                                $date = new DateTime($event['event_date']);
+                                $formattedDate = $date->format('l, F j, Y \a\t g:i A');
+                                $currentColor = $pastelColors[$colorIndex % count($pastelColors)]; 
+                                $colorIndex++;
 
-                $imagePath = '../../images/' . htmlspecialchars($event['image']);
-                $defaultImage = '../../images/default-image-icon-vector-missin.jpg'; // <- Make sure this image exists
-                $finalImage = (!empty($event['image']) && file_exists($imagePath)) ? $imagePath : $defaultImage;
-            ?>
-                <div class="p-4 rounded-lg shadow-md transform transition-transform duration-300 hover:scale-105 hover:shadow-xl <?php echo $currentColor; ?>">
-                    <div class="flex flex-col space-y-2">
-                    <img src="<?php echo $finalImage; ?>" alt="Event Image" class="w-full h-48 object-cover rounded-md shadow">
+                                $imagePath = '../../images/' . htmlspecialchars($event['image']);
+                                $defaultImage = '../../images/default-image-icon-vector-missin.jpg'; // <- Make sure this image exists
+                                $finalImage = (!empty($event['image']) && file_exists($imagePath)) ? $imagePath : $defaultImage;
+                            ?>
+                                <div class="p-4 rounded-lg shadow-md transform transition-transform duration-300 hover:scale-105 hover:shadow-xl <?php echo $currentColor; ?>">
+                                    <div class="flex flex-col space-y-2">
+                                    <img src="<?php echo $finalImage; ?>" alt="Event Image" class="w-full h-48 object-cover rounded-md shadow">
 
-                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <i class="fas fa-bullhorn text-green-500 blinking"></i> 
-                            <?php echo htmlspecialchars($event['event_name']); ?>
-                        </h3>
-                        default-image-icon-vector-missin        <p class="text-sm text-gray-600">
-                            <i class="fas fa-clock text-gray-500"></i>
-                            <?php echo htmlspecialchars($formattedDate); ?>
-                        </p>
-                        <p class="text-gray-700"><?php echo htmlspecialchars($event['description']); ?></p>
+                                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                            <i class="fas fa-bullhorn text-green-500 blinking"></i> 
+                                            <?php echo htmlspecialchars($event['event_name']); ?>
+                                        </h3>
+                                            <p class="text-sm text-gray-600">
+                                            <i class="fas fa-clock text-gray-500"></i>
+                                            <?php echo htmlspecialchars($formattedDate); ?>
+                                        </p>
+                                        <p class="text-gray-700"><?php echo htmlspecialchars($event['description']); ?></p>
 
-                        <?php if ($isAdmin): ?>
-                            <form action="../dashboard/query/delete_event.php" method="POST" onsubmit="return confirmDelete(event)">
-                                <input type="hidden" name="eventID" value="<?php echo htmlspecialchars($event['eventID']); ?>">
-                                <button type="submit" class="text-red-500 hover:text-red-700 transition self-start mt-2">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                    </div>
+                                        <?php if ($isAdmin): ?>
+                                            <form action="../dashboard/query/delete_event.php" method="POST" onsubmit="return confirmDelete(event)">
+                                                <input type="hidden" name="eventID" value="<?php echo htmlspecialchars($event['eventID']); ?>">
+                                                <button type="submit" class="text-red-500 hover:text-red-700 transition self-start mt-2">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-gray-500 text-center py-4">No events found.</p>
+                    <?php endif; ?>
                 </div>
-            <?php endforeach; ?>
-        </div>
-    <?php else: ?>
-        <p class="text-gray-500 text-center py-4">No events found.</p>
-    <?php endif; ?>
-</div>
 
             </div>
         </div>
