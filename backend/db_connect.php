@@ -1,13 +1,13 @@
 <?php
-// $host = 'localhost';
-// $dbname = 'u607308985_alumnirtu';
-// $user = 'u607308985_alumnirtu';
-// $pass = '5|j[jqL8]gKV';
+$host = 'localhost';
+$dbname = 'u607308985_alumnirtu';
+$user = 'u607308985_alumnirtu';
+$pass = '5|j[jqL8]gKV';
 
-$host = 'localhost'; 
-$user = 'root'; 
-$pass = '';
-$dbname = 'alumni_rtu';
+// $host = 'localhost'; 
+// $user = 'root'; 
+// $pass = '';
+// $dbname = 'alumni_rtu';
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 
