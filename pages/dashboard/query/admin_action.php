@@ -1,9 +1,16 @@
-<?php
+<?php 
 require '../../../backend/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userID = intval($_POST['userID']);
-    $action = $_POST['action'];
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!isset($data['userID'], $data['action'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid data provided.']);
+        exit;
+    }
+
+    $userID = intval($data['userID']);
+    $action = $data['action'];
 
     $checkQuery = "SELECT type FROM nx_user_type WHERE pID = $userID";
     $result = $conn->query($checkQuery);
