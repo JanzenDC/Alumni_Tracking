@@ -34,8 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => false, 'message' => 'User is already an admin.']);
             exit;
         }
-        // Use INSERT ... ON DUPLICATE KEY UPDATE to set admin type (assumes pID is unique)
-        $query = "INSERT INTO nx_user_type (pID, type) VALUES (?, 2) ON DUPLICATE KEY UPDATE type = 2";
+        // If the user has an existing record (but not admin), delete it first
+        if ($currentType !== null) {
+            $stmt = $conn->prepare("DELETE FROM nx_user_type WHERE pID = ?");
+            if (!$stmt) {
+                echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
+                exit;
+            }
+            $stmt->bind_param("i", $userID);
+            if (!$stmt->execute()) {
+                echo json_encode(['success' => false, 'message' => 'Failed to delete existing record: ' . $stmt->error]);
+                exit;
+            }
+            $stmt->close();
+        }
+        // Insert the new admin record
+        $query = "INSERT INTO nx_user_type (pID, type) VALUES (?, 2)";
         $stmt = $conn->prepare($query);
         if (!$stmt) {
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
