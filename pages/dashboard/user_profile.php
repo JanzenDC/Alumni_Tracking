@@ -291,15 +291,6 @@ function getDepartmentName($code) {
                         </div>
                     </div>
 
-
-                    <!-- Photos Tab -->
-                    <!-- <div id="photos" class="tab-content">
-                        <div class="bg-white shadow rounded-lg p-4">
-                            <h2 class="text-2xl font-semibold mb-4">Photos</h2>
-                           
-                            <p class="text-gray-600">No photos to display.</p>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
