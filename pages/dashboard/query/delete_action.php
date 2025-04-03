@@ -11,9 +11,9 @@ header('Content-Type: application/json');
 // Get the request body for JSON input or use POST for form submissions
 $requestBody = file_get_contents('php://input');
 if ($requestBody) {
-    $data = json_decode($requestBody, true);
-    $userID = intval($data['userID']);
-    $action = $data['action'];
+    // $_POST = json_decode($requestBody, true);
+    $userID = intval($_POST['userID']);
+    $action = $_POST['action'];
 } else {
     $userID = intval($_POST['userID']);
     $action = $_POST['action'];
