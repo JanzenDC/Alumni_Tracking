@@ -6,10 +6,8 @@ date_default_timezone_set('Asia/Singapore');
 // Alter the table column "timestamp" to be a DATETIME without a default CURRENT_TIMESTAMP
 $alter_query = "ALTER TABLE nx_logs MODIFY COLUMN `timestamp` DATETIME NOT NULL";
 if ($conn->query($alter_query) === TRUE) {
-    // Column successfully altered
-    // You might want to remove or comment out this section after the first run.
+    // Column successfully altered (you might remove this after the first run)
 } else {
-    // Log the error and optionally handle it
     error_log("Table alteration failed: " . $conn->error);
 }
 
@@ -36,12 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                    ut.type AS user_type
             FROM nx_users u
             LEFT JOIN nx_user_type ut ON u.pID = ut.pID
-            WHERE u.username = ?";
+            WHERE u.username = '$username'";
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $conn->query($sql);
     $ip_address = $_SERVER['REMOTE_ADDR'];
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
     
@@ -75,11 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Insert login log - SUCCESS using nx_logs
             $log_query = "INSERT INTO nx_logs (pID, username, action, target_type, target_id, ip_address, user_agent, remark, `timestamp`) 
-                          VALUES (?, ?, 'login success', 'user', ?, ?, ?, 'User successfully logged in', ?)";
-            $stmtLog = $conn->prepare($log_query);
-            $stmtLog->bind_param("isisss", $row['pID'], $username, $row['pID'], $ip_address, $user_agent, $current_date_time);
-            $stmtLog->execute();
-            $stmtLog->close();
+                          VALUES (" . $row['pID'] . ", '$username', 'login success', 'user', " . $row['pID'] . ", '$ip_address', '$user_agent', 'User successfully logged in', '$current_date_time')";
+            $conn->query($log_query);
 
             $_SESSION['toastr_message'] = 'Login successful!';
             $_SESSION['toastr_type'] = 'success';
@@ -87,11 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // Insert login log - FAILED (Incorrect password)
             $log_query = "INSERT INTO nx_logs (username, action, target_type, ip_address, user_agent, remark, `timestamp`) 
-                          VALUES (?, 'login_failed', 'user', ?, ?, 'Incorrect password', ?)";
-            $stmtLog = $conn->prepare($log_query);
-            $stmtLog->bind_param("ssss", $username, $ip_address, $user_agent, $current_date_time);
-            $stmtLog->execute();
-            $stmtLog->close();
+                          VALUES ('$username', 'login_failed', 'user', '$ip_address', '$user_agent', 'Incorrect password', '$current_date_time')";
+            $conn->query($log_query);
 
             $_SESSION['toastr_message'] = 'Invalid username or password';
             $_SESSION['toastr_type'] = 'error';
@@ -100,11 +89,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Insert login log - FAILED (User not found)
         $log_query = "INSERT INTO nx_logs (username, action, target_type, ip_address, user_agent, remark, `timestamp`) 
-                      VALUES (?, 'login_failed', 'user', ?, ?, 'User not found', ?)";
-        $stmtLog = $conn->prepare($log_query);
-        $stmtLog->bind_param("ssss", $username, $ip_address, $user_agent, $current_date_time);
-        $stmtLog->execute();
-        $stmtLog->close();
+                      VALUES ('$username', 'login_failed', 'user', '$ip_address', '$user_agent', 'User not found', '$current_date_time')";
+        $conn->query($log_query);
 
         $_SESSION['toastr_message'] = 'Invalid username or password.';
         $_SESSION['toastr_type'] = 'error';
@@ -112,7 +98,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Close database connection
-    $stmt->close();
     $conn->close();
 }
 ?>
