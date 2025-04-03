@@ -1,12 +1,14 @@
 <?php
 session_start();
+
 require '../../../backend/db_connect.php';
 
-// Enable detailed error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-// Set JSON header to ensure proper JSON response
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
 // Check if the user is logged in

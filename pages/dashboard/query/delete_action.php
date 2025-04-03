@@ -1,7 +1,13 @@
 <?php
 session_start();
 require '../../../backend/db_connect.php';
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json');
 // Get the request body for JSON input or use POST for form submissions
 $requestBody = file_get_contents('php://input');
 if ($requestBody) {

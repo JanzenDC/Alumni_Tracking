@@ -1,7 +1,7 @@
 <link rel="icon" href="../../images/R.ico" type="image/x-icon">
 <!-- TAILWIND -->
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->
-<link href="../../assets/output.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- <link href="../../assets/output.css" rel="stylesheet"> -->
 <!-- TOASTER CSS -->
 <link rel="stylesheet" href="../../assets/otherjs/toastr.min.css">
 <!-- SWEETALERT -->

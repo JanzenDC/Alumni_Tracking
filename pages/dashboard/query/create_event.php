@@ -1,7 +1,13 @@
 <?php
 session_start();
 require '../../../backend/db_connect.php';
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json');
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in.']);

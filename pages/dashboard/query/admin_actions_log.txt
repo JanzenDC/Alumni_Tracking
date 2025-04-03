@@ -1,0 +1,12 @@
+[2025-04-03 09:37:29] User 8 performed 'remove_admin' on User 10
+[2025-04-03 09:39:26] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:39:32] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:39:41] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:39:46] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:40:26] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:41:29] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:45:17] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:45:39] User 8 performed 'remove_admin' on User 10
+[2025-04-03 09:46:11] User 8 performed 'set_admin' on User 8
+[2025-04-03 09:49:06] User 8 attempted to set admin for User 10
+[2025-04-03 09:49:12] User 8 attempted to remove admin from User 10

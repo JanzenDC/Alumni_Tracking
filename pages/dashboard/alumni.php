@@ -359,6 +359,37 @@ $result = mysqli_query($conn, $query);
         });
 
         function removeAdmin(userID) {
+            console.log('Removing admin privileges for user:', userID);
+            Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this user as an admin?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove admin!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                console.log('User confirmed admin removal');
+                fetch('../dashboard/query/admin_action.php', {
+                method: 'POST',
+                body: JSON.stringify({ targetUserID: userID, action: 'remove_admin' }),
+                headers: { 'Content-Type': 'application/json' }
+                }).then(response => response.json())
+                .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                    Swal.fire('Success!', 'User has been removed as an admin.', 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
+                }
+                });
+            }
+            });
+        }
+
+        function removeAdmin(userID) {
+            console.log('Removing admin privileges for user:', userID);
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to remove this user as an admin?",
@@ -369,16 +400,21 @@ $result = mysqli_query($conn, $query);
                 confirmButtonText: 'Yes, remove admin!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('../dashboard/query/admin_action.php', {
+                    $.ajax({
+                        url: '../dashboard/query/remove_admin.php',
                         method: 'POST',
-                        body: JSON.stringify({ userID: userID, action: 'remove_admin' }),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Success!', 'User has been removed as an admin.', 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error!', data.message, 'error');
+                        data: {
+                            targetUserID: userID                        },
+                        success: function (data) {
+                            if (data.success) {
+                                Swal.fire('Success!', 'User has been removed as an admin.', 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error!', data.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'A connection error occurred. Please try again.', 'error');
                         }
                     });
                 }
@@ -396,16 +432,21 @@ $result = mysqli_query($conn, $query);
                 confirmButtonText: 'Yes, make admin!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('../dashboard/query/admin_action.php', {
+                    $.ajax({
+                        url: '../dashboard/query/set_admin.php',
                         method: 'POST',
-                        body: JSON.stringify({ userID: userID, action: 'set_admin' }),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Success!', 'User has been granted admin privileges.', 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error!', data.message, 'error');
+                        data: {
+                            targetUserID: userID                        },
+                        success: function (data) {
+                            if (data.success) {
+                                Swal.fire('Success!', 'User has been granted admin privileges.', 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error!', data.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'A connection error occurred. Please try again.', 'error');
                         }
                     });
                 }
@@ -424,24 +465,29 @@ $result = mysqli_query($conn, $query);
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('../dashboard/query/delete_action.php', {
+                    $.ajax({
+                        url: '../dashboard/query/delete_action.php',
                         method: 'POST',
-                        body: JSON.stringify({ userID: userID, action: 'remove_alumni' }),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Removed!', 'The alumni has been removed successfully.', 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error!', data.message || 'An error occurred while removing the alumni.', 'error');
+                        data: {
+                            userID: userID,
+                            action: 'remove_alumni'
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                Swal.fire('Removed!', 'The alumni has been removed successfully.', 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error!', data.message || 'An error occurred while removing the alumni.', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'A connection error occurred. Please try again.', 'error');
                         }
-                    })
-                    .catch(error => {
-                        Swal.fire('Error!', 'A connection error occurred. Please try again.', 'error');
                     });
                 }
             });
         }
+
     </script>
 </body>
 </html>
