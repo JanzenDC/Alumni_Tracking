@@ -49,7 +49,7 @@ if ($targetUserType !== '2') {
     exit;
 }
 
-if ($targetUserType === '3' && $loggedInUserType !== '3') {
+if ($loggedInUserType !== '3') {
     echo json_encode(['success' => false, 'message' => 'You do not have permission to remove a super admin.']);
     exit;
 }
