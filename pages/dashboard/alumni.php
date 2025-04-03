@@ -239,19 +239,19 @@ $result = mysqli_query($conn, $query);
                                         class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                                         View Profile
                                         </a>
-                                    <?php if ($isAdmin || $isSuperAdmin) { ?>
-                                        <?php if (!isset($row['type']) || $row['type'] != 2) { ?>
-                                            <button onclick="setAdmin(<?php echo $row['pID']; ?>)" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Make Admin</button>
-                                        <?php } else { ?>
-                                            <button onclick="removeAdmin(<?php echo $row['pID']; ?>)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Remove Admin</button>
-                                        <?php } ?>
-                                        
-                                        <?php if (!isset($row['type']) || (int)$row['type'] !== 3) { // Don't allow removing super admins ?>
-                                            <button onclick="removeAlumni(<?php echo $row['pID']; ?>)" class="delete-btn">
-                                                <i class="fas fa-trash"></i> Remove
-                                            </button>
-                                        <?php } ?>
-                                    <?php } ?>
+                                        <?php if ($isAdmin || $isSuperAdmin) { ?>
+    <?php if (!isset($row['type']) || $row['type'] != 2) { ?>
+        <button onclick="setAdmin(<?php echo $row['pID']; ?>)" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Make Admin</button>
+    <?php } elseif ($isSuperAdmin) { ?>
+        <button onclick="removeAdmin(<?php echo $row['pID']; ?>)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Remove Admin</button>
+    <?php } ?>
+
+    <?php if (!isset($row['type']) || (int)$row['type'] !== 3) { ?>
+        <button onclick="removeAlumni(<?php echo $row['pID']; ?>)" class="delete-btn">
+            <i class="fas fa-trash"></i> Remove
+        </button>
+    <?php } ?>
+<?php } ?>
                                     </div>
                                 </td>
                             </tr>

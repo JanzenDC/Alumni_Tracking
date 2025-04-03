@@ -1,17 +1,29 @@
 <?php
 require 'db_connect.php';
 session_start();
-date_default_timezone_set('Asia/Singapore');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Alter the table column "timestamp" to be a DATETIME without a default CURRENT_TIMESTAMP
-$alter_query = "ALTER TABLE nx_logs MODIFY COLUMN `timestamp` DATETIME NOT NULL";
-if ($conn->query($alter_query) === TRUE) {
-    // Column successfully altered (you might remove this after the first run)
-} else {
-    error_log("Table alteration failed: " . $conn->error);
+// ----------- GeoIP + Timezone Function -----------
+function getUserTimezoneFromIP($ip) {
+    $apiUrl = "http://ip-api.com/json/$ip?fields=status,message,timezone";
+    $response = @file_get_contents($apiUrl);
+    if ($response) {
+        $data = json_decode($response, true);
+        if ($data['status'] === 'success' && !empty($data['timezone'])) {
+            return $data['timezone'];
+        }
+    }
+    return 'Asia/Singapore'; // Fallback timezone
 }
 
-// Process login only if POST method is used
+// ----------- Alter Timestamp Column (one-time only, then remove) -----------
+$alter_query = "ALTER TABLE nx_logs MODIFY COLUMN `timestamp` DATETIME NOT NULL";
+if ($conn->query($alter_query) !== TRUE) {
+    error_log("Table alteration failed (or already done): " . $conn->error);
+}
+
+// ----------- Process Login -----------
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
@@ -24,10 +36,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Escape user inputs to prevent SQL injection
     $username = $conn->real_escape_string($username);
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
-    // Construct the SQL query to get user data
+    // Get user's timezone via IP
+    $timezone = getUserTimezoneFromIP($ip_address);
+    date_default_timezone_set($timezone);
+    $current_date_time = date('Y-m-d H:i:s');
+
+    // Query user
     $sql = "SELECT u.pID, u.email, u.fname, u.mname, u.lname, u.date_of_birth, 
                    u.profile_picture, u.bio, u.phone_number, u.address, u.city, 
                    u.state, u.zip_code, u.country, u.password_hash, 
@@ -35,20 +53,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             FROM nx_users u
             LEFT JOIN nx_user_type ut ON u.pID = ut.pID
             WHERE u.username = '$username'";
-
     $result = $conn->query($sql);
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-    $user_agent = $_SERVER['HTTP_USER_AGENT'];
-    
-    // Get current datetime in MySQL DATETIME format
-    $current_date_time = date('Y-m-d H:i:s');
 
     if ($result && $result->num_rows === 1) {
         $row = $result->fetch_assoc();
         $hashed_password = $row['password_hash'];
 
-        // Verify the password
         if (password_verify($password, $hashed_password)) {
+            // Set session
             $_SESSION['user'] = [
                 'id' => $row['pID'],
                 'username' => $username,
@@ -68,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 'user_type' => $row['user_type']
             ];
 
-            // Insert login log - SUCCESS using nx_logs
+            // Log success
             $log_query = "INSERT INTO nx_logs (pID, username, action, target_type, target_id, ip_address, user_agent, remark, `timestamp`) 
                           VALUES (" . $row['pID'] . ", '$username', 'login success', 'user', " . $row['pID'] . ", '$ip_address', '$user_agent', 'User successfully logged in', '$current_date_time')";
             $conn->query($log_query);
@@ -77,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['toastr_type'] = 'success';
             header('Location: ../pages/dashboard/dashboard.php');
         } else {
-            // Insert login log - FAILED (Incorrect password)
+            // Log failure - incorrect password
             $log_query = "INSERT INTO nx_logs (username, action, target_type, ip_address, user_agent, remark, `timestamp`) 
                           VALUES ('$username', 'login_failed', 'user', '$ip_address', '$user_agent', 'Incorrect password', '$current_date_time')";
             $conn->query($log_query);
@@ -87,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header('Location: ../index.php');
         }
     } else {
-        // Insert login log - FAILED (User not found)
+        // Log failure - user not found
         $log_query = "INSERT INTO nx_logs (username, action, target_type, ip_address, user_agent, remark, `timestamp`) 
                       VALUES ('$username', 'login_failed', 'user', '$ip_address', '$user_agent', 'User not found', '$current_date_time')";
         $conn->query($log_query);
@@ -97,7 +109,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header('Location: ../index.php');
     }
 
-    // Close database connection
     $conn->close();
 }
 ?>
