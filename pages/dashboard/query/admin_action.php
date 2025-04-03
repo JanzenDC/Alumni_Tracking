@@ -15,39 +15,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $userID = intval($_SESSION['user']['id']);
+    $loggedInUserID = intval($_SESSION['user']['id']);
     $action = $conn->real_escape_string($data['action']);
 
-    $query = "SELECT type FROM nx_user_type WHERE pID = $userID";
-    $result = $conn->query($query);
-    if (!$result) {
-        echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
-        exit;
-    }
-    $row = $result->fetch_assoc();
-    $currentType = $row['type'] ?? null;
+    // Optionally allow targeting a different user (only for admin actions)
+    $targetUserID = isset($data['targetUserID']) ? intval($data['targetUserID']) : $loggedInUserID;
+
+    // Get type of logged-in user
+    $result = $conn->query("SELECT type FROM nx_user_type WHERE pID = $loggedInUserID");
+    $loggedInUserType = ($result && $row = $result->fetch_assoc()) ? $row['type'] : null;
+
+    // Get type of target user
+    $result = $conn->query("SELECT type FROM nx_user_type WHERE pID = $targetUserID");
+    $targetUserType = ($result && $row = $result->fetch_assoc()) ? $row['type'] : null;
 
     if ($action === 'set_admin') {
-        if ($currentType === '2') {
+        if ($targetUserType === '2') {
             echo json_encode(['success' => false, 'message' => 'User is already an admin.']);
             exit;
         }
-        if ($currentType !== null) {
-            $deleteQuery = "DELETE FROM nx_user_type WHERE pID = $userID";
-            if (!$conn->query($deleteQuery)) {
-                echo json_encode(['success' => false, 'message' => 'Failed to delete existing record: ' . $conn->error]);
-                exit;
-            }
+        if ($targetUserType !== null) {
+            $conn->query("DELETE FROM nx_user_type WHERE pID = $targetUserID");
         }
-        $insertQuery = "INSERT INTO nx_user_type (pID, type) VALUES ($userID, 2)";
-        $result = $conn->query($insertQuery);
+        $result = $conn->query("INSERT INTO nx_user_type (pID, type) VALUES ($targetUserID, 2)");
     } elseif ($action === 'remove_admin') {
-        if ($currentType !== '2') {
-            echo json_encode(['success' => false, 'message' => 'User is not an admin.']);
+        if ($targetUserType !== '2' && $targetUserType !== '3') {
+            echo json_encode(['success' => false, 'message' => 'Target user is not an admin.']);
             exit;
         }
-        $deleteQuery = "DELETE FROM nx_user_type WHERE pID = $userID";
-        $result = $conn->query($deleteQuery);
+
+        if ($targetUserType === '3' && $loggedInUserType !== '3') {
+            echo json_encode(['success' => false, 'message' => 'You do not have permission to remove a super admin.']);
+            exit;
+        }
+
+        $result = $conn->query("DELETE FROM nx_user_type WHERE pID = $targetUserID");
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid action specified.']);
         exit;
